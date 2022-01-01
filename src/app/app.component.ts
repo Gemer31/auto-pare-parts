@@ -1,20 +1,6 @@
 import { Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
-
-export interface TableRow {
-  name: string;
-  position: number;
-  secondHandMinPrice?: number;
-  secondHandAveragePrice?: number;
-  secondHandMaxPrice?: number;
-  newMinPrice?: number;
-  newAveragePrice?: number;
-  newMaxPrice?: number;
-}
-
-export interface SelectValue {
-  value?: string;
-  text?: string;
-}
+import { CurrencyPipe } from "@angular/common";
+import { SelectValue, TableRow } from "./models";
 
 const ELEMENT_DATA: TableRow[] = [
   {
@@ -67,38 +53,40 @@ export class AppComponent implements OnInit {
 
   public _tableRows: TableRow[] = [];
 
-  tableColumns: string[] = ['position', 'name', 'minPrice', 'averagePrice', 'maxPrice'];
-  tableData = ELEMENT_DATA;
+  public _tableColumns: string[] = ['position', 'name', 'minPrice', 'averagePrice', 'maxPrice'];
+  public _tableData: TableRow[] = ELEMENT_DATA;
+
+  constructor(
+    private currencyPipe: CurrencyPipe,
+  ) {
+  }
 
   ngOnInit() {
-    fetch(this.defaultURL)
-      .then((response: Response) => (response.text()))
-      .then((htmlAsString: string) => {
-        const html: DocumentFragment = document.createRange().createContextualFragment(htmlAsString);
-
-        html.getElementById("marka")?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {
-          this._markas.push({value: item.value, text: item.innerText});
-        });
-
-        html.getElementById("zapchast")?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {
-          this._pareParts.push({value: item.value, text: item.innerText});
-        });
+    this.getHtml(this.defaultURL)
+      .then((html: Document) => {
+        this.collectValues(html,"marka", this._markas);
+        this.collectValues(html,"zapchast", this._pareParts);
       });
   }
 
-  public _markaChanged(event: any): void {
-    fetch(this.defaultURL + `zchbu/marka_${event}/`)
-      .then((response: Response) => (response.text()))
-      .then((htmlAsString: string) => {
-        const html: DocumentFragment = document.createRange().createContextualFragment(htmlAsString);
+  public collectValues(html: Document, elementId: string, array: SelectValue[]): void {
+    html.getElementById(elementId)?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {
+      array.push({value: item.value, text: item.innerText});
+    });
+  }
 
-        html.getElementById("model")?.querySelectorAll("option").forEach((item) => {
-          this._models.push({value: item.value, text: item.innerText});
-        });
+  public _markaChanged(event: SelectValue): void {
+    this._models = [];
+    this._selectedModel = {};
+    this._selectedMarka = event;
+
+    this.getHtml(this.defaultURL + `zchbu/marka_${event.value}/`)
+      .then((html: Document) => {
+        this.collectValues(html,"model", this._models);
       });
   }
 
-  private prepareUrl(): string {
+  private prepareUrl(page?: number): string {
     let url: string = this.defaultURL + "zchbu/";
 
     if (this._selectedParePart?.value) {
@@ -108,23 +96,62 @@ export class AppComponent implements OnInit {
       url += `marka_${this._selectedMarka.value}/`;
     }
     if (this._selectedModel?.value) {
-      url += `model_${this._selectedMarka.value}/`;
+      url += `model_${this._selectedModel.value}/`;
     }
-
+    // if (page) {
+    //   url += `?ACTION=REWRITED3&FORM_DATA=zapchast_blok-abs%2Fmarka_audi%2Fmodel_80&PAGEN_1=6`
+    // }
     return url;
   }
 
-  public _calculateClicked(): void {
-    fetch(this.prepareUrl())
+  public getHtml(url: string): Promise<Document> {
+    return fetch(url)
       .then((response: Response) => (response.text()))
       .then((htmlAsString: string) => {
-        const html: DocumentFragment = document.createRange().createContextualFragment(htmlAsString);
-
-        html.getElementById("model")?.querySelectorAll("option").forEach((item) => {
-          this._models.push({value: item.value, text: item.innerText});
-        });
+        return new DOMParser().parseFromString(htmlAsString, "text/html");
       });
   }
 
-  class = "modern-page-next"
+  public _calculateClicked(): void {
+    this._tableData = [];
+
+    this.getHtml(this.prepareUrl())
+      .then((html: Document) => {
+        let secondHandMinPrice: number = 0;
+        let secondHandAveragePrice: number = 0;
+        let secondHandMaxPrice: number = 0;
+
+        let newMinPrice: number = 0;
+        let newAveragePrice: number = 0;
+        let newMaxPrice: number = 0;
+
+        const elements: Element[] = Array.from(html.getElementsByClassName("price-box"));
+        const nextPageExist: Element = html.getElementsByClassName("modern-page-next")?.item(0) as Element;
+
+        elements.forEach((element: Element) => {
+          const value = element.getElementsByClassName("currency-list").item(0)?.innerHTML?.trim();
+          const parePartPrice: number = Number(value?.substring(1, value.length - 1));
+
+          if (!secondHandMinPrice || secondHandMinPrice > parePartPrice) {
+            secondHandMinPrice = parePartPrice
+          }
+          if (!secondHandMaxPrice || secondHandMaxPrice < parePartPrice) {
+            secondHandMaxPrice = parePartPrice
+          }
+          secondHandAveragePrice = !secondHandAveragePrice ? parePartPrice : secondHandAveragePrice + parePartPrice;
+        });
+
+        this._tableData.push({
+          name: this._selectedParePart?.text as string,
+          position: this._tableData.length + 1,
+          secondHandMinPrice: secondHandMinPrice,
+          secondHandAveragePrice: secondHandAveragePrice / elements?.length,
+          secondHandMaxPrice: secondHandMaxPrice,
+          // newMinPrice: newMinPrice,
+          // newAveragePrice: newAveragePrice,
+          // newMaxPrice: newMaxPrice
+        })
+      });
+
+  }
 }
