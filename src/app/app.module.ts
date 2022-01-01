@@ -10,6 +10,7 @@ import { MatTableModule } from "@angular/material/table";
 import { HttpClientModule } from "@angular/common/http";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
     MatButtonModule,
     MatFormFieldModule,
     MatOptionModule,
+    MatProgressBarModule,
   ],
   providers: [
     CurrencyPipe,

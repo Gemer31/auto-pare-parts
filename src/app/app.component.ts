@@ -1,6 +1,5 @@
-import { Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
-import { CurrencyPipe } from "@angular/common";
-import { SelectValue, TableRow } from "./models";
+import { ChangeDetectorRef, Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
+import { SelectValue, SiteElementsName, TableRow } from "./models";
 
 const ELEMENT_DATA: TableRow[] = [
   {
@@ -41,7 +40,7 @@ const ELEMENT_DATA: TableRow[] = [
 export class AppComponent implements OnInit {
   @HostBinding("class.app") public hostClass: boolean = true;
 
-  public defaultURL: string = "https://bamper.by/"
+  private defaultURL: string = "https://bamper.by/"
 
   public _markas: SelectValue[] = [];
   public _pareParts: SelectValue[] = [];
@@ -52,27 +51,30 @@ export class AppComponent implements OnInit {
   public _selectedModel: SelectValue = {};
 
   public _tableRows: TableRow[] = [];
-
   public _tableColumns: string[] = ['position', 'name', 'minPrice', 'averagePrice', 'maxPrice'];
   public _tableData: TableRow[] = ELEMENT_DATA;
 
+  public _loadingInProgress: boolean = false;
+
   constructor(
-    private currencyPipe: CurrencyPipe,
+    private cdr: ChangeDetectorRef,
   ) {
   }
 
   ngOnInit() {
     this.getHtml(this.defaultURL)
       .then((html: Document) => {
-        this.collectValues(html,"marka", this._markas);
-        this.collectValues(html,"zapchast", this._pareParts);
+        this.collectValues(html, SiteElementsName.MARKA, this._markas);
+        this.collectValues(html, SiteElementsName.ZAPCHAST, this._pareParts);
       });
   }
 
-  public collectValues(html: Document, elementId: string, array: SelectValue[]): void {
-    html.getElementById(elementId)?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {
-      array.push({value: item.value, text: item.innerText});
-    });
+  public getHtml(url: string): Promise<Document> {
+    return fetch(url)
+      .then((response: Response) => (response.text()))
+      .then((htmlAsString: string) => {
+        return new DOMParser().parseFromString(htmlAsString, "text/html");
+      });
   }
 
   public _markaChanged(event: SelectValue): void {
@@ -82,11 +84,17 @@ export class AppComponent implements OnInit {
 
     this.getHtml(this.defaultURL + `zchbu/marka_${event.value}/`)
       .then((html: Document) => {
-        this.collectValues(html,"model", this._models);
+        this.collectValues(html, SiteElementsName.MODEL, this._models);
       });
   }
 
-  private prepareUrl(page?: number): string {
+  public collectValues(html: Document, elementId: string, array: SelectValue[]): void {
+    html.getElementById(elementId)?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {
+      array.push({value: item.value, text: item.innerText});
+    });
+  }
+
+  private prepareUrl(page: number): string {
     let url: string = this.defaultURL + "zchbu/";
 
     if (this._selectedParePart?.value) {
@@ -98,60 +106,84 @@ export class AppComponent implements OnInit {
     if (this._selectedModel?.value) {
       url += `model_${this._selectedModel.value}/`;
     }
-    // if (page) {
-    //   url += `?ACTION=REWRITED3&FORM_DATA=zapchast_blok-abs%2Fmarka_audi%2Fmodel_80&PAGEN_1=6`
-    // }
+    url += "?ACTION=REWRITED3&FORM_DATA=";
+    if (this._selectedParePart?.value) {
+      url += `zapchast_${this._selectedParePart.value}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
+    }
+    if (this._selectedMarka?.value) {
+      url += `marka_${this._selectedMarka.value}${this._selectedModel?.value ? "%2F" : ""}`;
+    }
+    if (this._selectedModel?.value) {
+      url += `model_${this._selectedModel.value}`;
+    }
+    url += `&PAGEN_1=${page}`;
+
     return url;
   }
 
-  public getHtml(url: string): Promise<Document> {
-    return fetch(url)
-      .then((response: Response) => (response.text()))
-      .then((htmlAsString: string) => {
-        return new DOMParser().parseFromString(htmlAsString, "text/html");
-      });
+  public _calculateClicked(): void {
+    const parePartModel: TableRow = {
+      name: this._selectedParePart.text as string,
+      secondHandMinPrice: 0,
+      secondHandAveragePrice: 0,
+      secondHandMaxPrice: 0,
+      newMinPrice: 0,
+      newAveragePrice: 0,
+      newMaxPrice: 0
+    }
+
+    this._tableData = [];
+    this._loadingInProgress = true
+
+
+    if (this._selectedParePart?.value) {
+      this.resolvePage(parePartModel, 1);
+    } else {
+      this._pareParts.forEach((parePart: SelectValue) => {
+        this.resolvePage({...parePartModel, name: parePart.text as string}, 1);
+      })
+    }
   }
 
-  public _calculateClicked(): void {
-    this._tableData = [];
-
-    this.getHtml(this.prepareUrl())
+  private resolvePage(parePartModel: TableRow, page: number): void {
+    this.getHtml(this.prepareUrl(page))
       .then((html: Document) => {
-        let secondHandMinPrice: number = 0;
-        let secondHandAveragePrice: number = 0;
-        let secondHandMaxPrice: number = 0;
-
-        let newMinPrice: number = 0;
-        let newAveragePrice: number = 0;
-        let newMaxPrice: number = 0;
-
-        const elements: Element[] = Array.from(html.getElementsByClassName("price-box"));
-        const nextPageExist: Element = html.getElementsByClassName("modern-page-next")?.item(0) as Element;
+        const elements: Element[] = Array.from(html.getElementsByClassName(SiteElementsName.PRICE_BOX));
+        const nextPageExist: Element = html.getElementsByClassName(SiteElementsName.NEXT_BUTTON)?.item(0) as Element;
 
         elements.forEach((element: Element) => {
-          const value = element.getElementsByClassName("currency-list").item(0)?.innerHTML?.trim();
+          const value = element.getElementsByClassName(SiteElementsName.CURRENCY_LIST).item(0)?.innerHTML?.trim();
           const parePartPrice: number = Number(value?.substring(1, value.length - 1));
 
-          if (!secondHandMinPrice || secondHandMinPrice > parePartPrice) {
-            secondHandMinPrice = parePartPrice
+          if (!parePartModel.secondHandMinPrice || parePartModel.secondHandMinPrice > parePartPrice) {
+            parePartModel.secondHandMinPrice = parePartPrice
           }
-          if (!secondHandMaxPrice || secondHandMaxPrice < parePartPrice) {
-            secondHandMaxPrice = parePartPrice
+          if (!parePartModel.secondHandMaxPrice || parePartModel.secondHandMaxPrice < parePartPrice) {
+            parePartModel.secondHandMaxPrice = parePartPrice
           }
-          secondHandAveragePrice = !secondHandAveragePrice ? parePartPrice : secondHandAveragePrice + parePartPrice;
+          parePartModel.secondHandAveragePrice = !parePartModel.secondHandAveragePrice
+            ? parePartPrice
+            : parePartModel.secondHandAveragePrice + parePartPrice;
         });
 
-        this._tableData.push({
-          name: this._selectedParePart?.text as string,
-          position: this._tableData.length + 1,
-          secondHandMinPrice: secondHandMinPrice,
-          secondHandAveragePrice: secondHandAveragePrice / elements?.length,
-          secondHandMaxPrice: secondHandMaxPrice,
-          // newMinPrice: newMinPrice,
-          // newAveragePrice: newAveragePrice,
-          // newMaxPrice: newMaxPrice
-        })
-      });
+        if (nextPageExist) {
+          this.resolvePage(parePartModel, page + 1);
+        } else {
+          this._tableData.push({
+            ...parePartModel,
+            position: this._tableData.length + 1,
+          })
+          console.log(this._tableData);
+          this.cdr.detectChanges();
 
+          if (this._selectedParePart?.value) {
+            this._loadingInProgress = false;
+          } else {
+            if (this._pareParts?.length === this._tableData?.length) {
+              this._loadingInProgress = false;
+            }
+          }
+        }
+      });
   }
 }
