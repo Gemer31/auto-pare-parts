@@ -1,36 +1,6 @@
 import { ChangeDetectorRef, Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
 import { SelectValue, SiteElementsName, TableRow } from "./models";
 
-const ELEMENT_DATA: TableRow[] = [
-  {
-    position: 1,
-    name: 'Капот',
-    secondHandMinPrice: 12,
-    secondHandAveragePrice: 24,
-    secondHandMaxPrice: 36,
-    newMinPrice: 15,
-    newAveragePrice: 30,
-    newMaxPrice: 45,
-  },
-  {
-    position: 2,
-    name: 'Бампер',
-    secondHandMinPrice: 12,
-    secondHandAveragePrice: 24,
-    secondHandMaxPrice: 36,
-    newMinPrice: 15,
-    newAveragePrice: 30,
-    newMaxPrice: 45,
-  },
-  {
-    position: 3,
-    name: 'Крыло',
-    secondHandMinPrice: 12,
-    secondHandAveragePrice: 24,
-    secondHandMaxPrice: 36,
-  },
-];
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -52,7 +22,7 @@ export class AppComponent implements OnInit {
 
   public _tableRows: TableRow[] = [];
   public _tableColumns: string[] = ['position', 'name', 'minPrice', 'averagePrice', 'maxPrice'];
-  public _tableData: TableRow[] = ELEMENT_DATA;
+  public _tableData: TableRow[] = [];
 
   public _loadingInProgress: boolean = false;
 
@@ -145,26 +115,58 @@ export class AppComponent implements OnInit {
     }
   }
 
+  public testTable(): void {
+    const data: TableRow[] = this._tableData;
+    this._tableData = [];
+    this.cdr.detectChanges();
+    this._tableData = data;
+  }
+
   private resolvePage(parePartModel: TableRow, page: number): void {
     this.getHtml(this.prepareUrl(page))
       .then((html: Document) => {
-        const elements: Element[] = Array.from(html.getElementsByClassName(SiteElementsName.PRICE_BOX));
+        const elements: Element[] = Array.from(html.getElementsByClassName(SiteElementsName.ITEM_LIST));
         const nextPageExist: Element = html.getElementsByClassName(SiteElementsName.NEXT_BUTTON)?.item(0) as Element;
 
         elements.forEach((element: Element) => {
-          const value = element.getElementsByClassName(SiteElementsName.CURRENCY_LIST).item(0)?.innerHTML?.trim();
+          const value = element
+            .getElementsByClassName(SiteElementsName.PRICE_BOX)
+            ?.item(0)
+            ?.getElementsByClassName(SiteElementsName.CURRENCY_LIST)
+            ?.item(0)?.innerHTML
+            ?.trim();
           const parePartPrice: number = Number(value?.substring(1, value.length - 1));
+          const isNewParePart: boolean = !!element.getElementsByClassName(SiteElementsName.NEW)?.length;
 
-          if (!parePartModel.secondHandMinPrice || parePartModel.secondHandMinPrice > parePartPrice) {
-            parePartModel.secondHandMinPrice = parePartPrice
+          if (isNewParePart) {
+            if (!parePartModel.newMinPrice || parePartModel.newMinPrice > parePartPrice) {
+              parePartModel.newMinPrice = parePartPrice
+            }
+            if (!parePartModel.newMaxPrice || parePartModel.newMaxPrice < parePartPrice) {
+              parePartModel.newMaxPrice = parePartPrice
+            }
+            parePartModel.newAveragePrice = !parePartModel.newAveragePrice
+              ? parePartPrice
+              : parePartModel.newAveragePrice + parePartPrice;
+          } else {
+            if (!parePartModel.secondHandMinPrice || parePartModel.secondHandMinPrice > parePartPrice) {
+              parePartModel.secondHandMinPrice = parePartPrice
+            }
+            if (!parePartModel.secondHandMaxPrice || parePartModel.secondHandMaxPrice < parePartPrice) {
+              parePartModel.secondHandMaxPrice = parePartPrice
+            }
+            parePartModel.secondHandAveragePrice = !parePartModel.secondHandAveragePrice
+              ? parePartPrice
+              : parePartModel.secondHandAveragePrice + parePartPrice;
           }
-          if (!parePartModel.secondHandMaxPrice || parePartModel.secondHandMaxPrice < parePartPrice) {
-            parePartModel.secondHandMaxPrice = parePartPrice
-          }
-          parePartModel.secondHandAveragePrice = !parePartModel.secondHandAveragePrice
-            ? parePartPrice
-            : parePartModel.secondHandAveragePrice + parePartPrice;
         });
+
+        if (parePartModel.secondHandAveragePrice) {
+          parePartModel.secondHandAveragePrice = parePartModel.secondHandAveragePrice / elements.length;
+        }
+        if (parePartModel.newAveragePrice) {
+          parePartModel.secondHandAveragePrice = parePartModel.newAveragePrice / elements.length;
+        }
 
         if (nextPageExist) {
           this.resolvePage(parePartModel, page + 1);
@@ -172,15 +174,16 @@ export class AppComponent implements OnInit {
           this._tableData.push({
             ...parePartModel,
             position: this._tableData.length + 1,
-          })
-          console.log(this._tableData);
-          this.cdr.detectChanges();
+            secondHandAveragePrice: parePartModel.secondHandAveragePrice ? parePartModel.secondHandAveragePrice / page : 0,
+          });
 
           if (this._selectedParePart?.value) {
             this._loadingInProgress = false;
+            this.testTable();
           } else {
             if (this._pareParts?.length === this._tableData?.length) {
               this._loadingInProgress = false;
+              this.testTable();
             }
           }
         }

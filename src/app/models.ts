@@ -18,6 +18,8 @@ export enum SiteElementsName {
   CURRENCY_LIST = "currency-list",
   NEXT_BUTTON = "modern-page-next",
   PRICE_BOX = "price-box",
+  ITEM_LIST = "item-list",
+  NEW = "new",
   MARKA = "marka",
   ZAPCHAST = "zapchast",
   MODEL = "model",
