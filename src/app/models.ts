@@ -20,6 +20,7 @@ export enum SiteElementsName {
   PRICE_BOX = "price-box",
   ITEM_LIST = "item-list",
   NEW = "new",
+  TOTAL_PARE_PARTS_COUNT = "js-var_iCount",
   MARKA = "marka",
   ZAPCHAST = "zapchast",
   MODEL = "model",

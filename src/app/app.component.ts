@@ -64,12 +64,11 @@ export class AppComponent implements OnInit {
     });
   }
 
-  private prepareUrl(page: number): string {
+  private prepareUrl(page: number, parePartName?: string): string {
     let url: string = this.defaultURL + "zchbu/";
 
-    if (this._selectedParePart?.value) {
-      url += `zapchast_${this._selectedParePart.value}/`;
-    }
+    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePartName}/`;
+
     if (this._selectedMarka?.value) {
       url += `marka_${this._selectedMarka.value}/`;
     }
@@ -77,9 +76,9 @@ export class AppComponent implements OnInit {
       url += `model_${this._selectedModel.value}/`;
     }
     url += "?ACTION=REWRITED3&FORM_DATA=";
-    if (this._selectedParePart?.value) {
-      url += `zapchast_${this._selectedParePart.value}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
-    }
+
+    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePartName}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
+
     if (this._selectedMarka?.value) {
       url += `marka_${this._selectedMarka.value}${this._selectedModel?.value ? "%2F" : ""}`;
     }
@@ -105,12 +104,23 @@ export class AppComponent implements OnInit {
     this._tableData = [];
     this._loadingInProgress = true
 
-
     if (this._selectedParePart?.value) {
-      this.resolvePage(parePartModel, 1);
+      this.resolvePage(parePartModel, 1, false);
     } else {
-      this._pareParts.forEach((parePart: SelectValue) => {
-        this.resolvePage({...parePartModel, name: parePart.text as string}, 1);
+      const testParts: SelectValue[] = [
+        this._pareParts[0],
+        this._pareParts[1],
+        this._pareParts[2],
+        this._pareParts[3],
+        this._pareParts[4],
+        this._pareParts[5],
+        this._pareParts[6],
+        this._pareParts[7],
+        this._pareParts[8],
+        this._pareParts[9],
+      ]
+      testParts.forEach((parePart: SelectValue) => {
+        this.resolvePage({...parePartModel, name: parePart.text as string}, 1, true);
       })
     }
   }
@@ -122,8 +132,8 @@ export class AppComponent implements OnInit {
     this._tableData = data;
   }
 
-  private resolvePage(parePartModel: TableRow, page: number): void {
-    this.getHtml(this.prepareUrl(page))
+  private resolvePage(parePartModel: TableRow, page: number, setParePartFromModel?: boolean): void {
+    this.getHtml(this.prepareUrl(page, parePartModel.name))
       .then((html: Document) => {
         const elements: Element[] = Array.from(html.getElementsByClassName(SiteElementsName.ITEM_LIST));
         const nextPageExist: Element = html.getElementsByClassName(SiteElementsName.NEXT_BUTTON)?.item(0) as Element;
@@ -161,27 +171,27 @@ export class AppComponent implements OnInit {
           }
         });
 
-        if (parePartModel.secondHandAveragePrice) {
-          parePartModel.secondHandAveragePrice = parePartModel.secondHandAveragePrice / elements.length;
-        }
-        if (parePartModel.newAveragePrice) {
-          parePartModel.secondHandAveragePrice = parePartModel.newAveragePrice / elements.length;
-        }
-
         if (nextPageExist) {
-          this.resolvePage(parePartModel, page + 1);
+          this.resolvePage({ ...parePartModel }, page + 1);
         } else {
+          const parePartsCount: number = Number(html.getElementsByClassName(SiteElementsName.TOTAL_PARE_PARTS_COUNT)
+              ?.item(0)
+              ?.getElementsByTagName("b")
+              ?.item(0)
+            )
+
           this._tableData.push({
             ...parePartModel,
             position: this._tableData.length + 1,
-            secondHandAveragePrice: parePartModel.secondHandAveragePrice ? parePartModel.secondHandAveragePrice / page : 0,
+            secondHandAveragePrice: parePartModel.secondHandAveragePrice ? parePartModel.secondHandAveragePrice / parePartsCount : 0,
+            newAveragePrice: parePartModel.newAveragePrice ? parePartModel.newAveragePrice / parePartsCount : 0
           });
 
           if (this._selectedParePart?.value) {
             this._loadingInProgress = false;
             this.testTable();
           } else {
-            if (this._pareParts?.length === this._tableData?.length) {
+            if (10 === this._tableData?.length) {
               this._loadingInProgress = false;
               this.testTable();
             }
