@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
   public _models: SelectValue[] = [];
 
   public _selectedMarka: SelectValue = {};
-  public _selectedParePart: SelectValue = {};
+  public _selectedParePart: SelectValue[] = [];
   public _selectedModel: SelectValue = {};
 
   public _tableRows: TableRow[] = [];
@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
       .then((html: Document) => {
         this.collectValues(html, SiteElementsName.MARKA, this._markas);
         this.collectValues(html, SiteElementsName.ZAPCHAST, this._pareParts);
+        console.log(this._pareParts?.length);
       });
   }
 
@@ -67,17 +68,16 @@ export class AppComponent implements OnInit {
   private prepareUrl(page: number, parePart: SelectValue): string {
     let url: string = this.defaultURL + "zchbu/";
 
-    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePart.value}/`;
-
+    url += `zapchast_${parePart.value}/`;
     if (this._selectedMarka?.value) {
       url += `marka_${this._selectedMarka.value}/`;
     }
     if (this._selectedModel?.value) {
       url += `model_${this._selectedModel.value}/`;
     }
-    url += "?ACTION=REWRITED3&FORM_DATA=";
+    url += "store_Y/?ACTION=REWRITED3&FORM_DATA=";
 
-    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePart.value}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
+    url += `zapchast_${parePart.value}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
 
     if (this._selectedMarka?.value) {
       url += `marka_${this._selectedMarka.value}${this._selectedModel?.value ? "%2F" : ""}`;
@@ -85,14 +85,13 @@ export class AppComponent implements OnInit {
     if (this._selectedModel?.value) {
       url += `model_${this._selectedModel.value}`;
     }
-    url += `&PAGEN_1=${page}`;
+    url += `%2Fstore_Y&PAGEN_1=${page}`;
 
     return url;
   }
 
   public _calculateClicked(): void {
     const parePartModel: TableRow = {
-      name: this._selectedParePart.text as string,
       secondHandMinPrice: 0,
       secondHandAveragePrice: 0,
       secondHandMaxPrice: 0,
@@ -102,27 +101,16 @@ export class AppComponent implements OnInit {
     }
 
     this._tableData = [];
-    this._loadingInProgress = true
+    this._loadingInProgress = true;
 
-    if (this._selectedParePart?.value) {
-      this.resolvePage(parePartModel, 1);
-    } else {
-      const testParts: SelectValue[] = [
-        this._pareParts[0],
-        this._pareParts[1],
-        this._pareParts[2],
-        this._pareParts[3],
-        this._pareParts[4],
-        this._pareParts[5],
-        this._pareParts[6],
-        this._pareParts[7],
-        this._pareParts[8],
-        this._pareParts[9],
-      ]
-      testParts.forEach((parePart: SelectValue) => {
-        parePart.value?.length && this.resolvePage({...parePartModel, name: parePart.text as string}, 1, parePart);
-      })
-    }
+    (this._selectedParePart?.length ? this._selectedParePart : this._pareParts).forEach((parePart: SelectValue) => {
+      parePart.value?.length && this.resolvePage(
+        {...parePartModel, name: parePart.text as string},
+        1,
+        0,
+        parePart
+      );
+    })
   }
 
   public testTable(): void {
@@ -132,16 +120,23 @@ export class AppComponent implements OnInit {
     this._tableData = data;
   }
 
-  private resolvePage(parePartModel: TableRow, page: number, parePart?: SelectValue): void {
+  private resolvePage(
+    parePartModel: TableRow,
+    page: number,
+    count: number = 0,
+    parePart?: SelectValue
+  ): void {
     this.getHtml(this.prepareUrl(page, parePart as SelectValue))
       .then((html: Document) => {
-        const elements: Element[] = Array.from(html.getElementsByClassName(SiteElementsName.ITEM_LIST));
+        const elements: Element[] = Array
+          .from(html.getElementsByClassName(SiteElementsName.ITEM_LIST))
+          ?.filter((element: Element) => {
+            return !!element.getElementsByClassName(SiteElementsName.CURRENCY_LIST)?.length;
+          });
         const nextPageExist: Element = html.getElementsByClassName(SiteElementsName.NEXT_BUTTON)?.item(0) as Element;
 
         elements.forEach((element: Element) => {
           const value = element
-            .getElementsByClassName(SiteElementsName.PRICE_BOX)
-            ?.item(0)
             ?.getElementsByClassName(SiteElementsName.CURRENCY_LIST)
             ?.item(0)?.innerHTML
             ?.trim();
@@ -171,31 +166,22 @@ export class AppComponent implements OnInit {
           }
         });
 
-        if (nextPageExist) {
-          this.resolvePage({ ...parePartModel }, page + 1);
+        if (nextPageExist && page < 61) {
+          this.resolvePage({...parePartModel}, page + 1, count + elements.length, parePart as SelectValue);
         } else {
-          const parePartsCount: number = Number(html.getElementsByClassName(SiteElementsName.TOTAL_PARE_PARTS_COUNT)
-              ?.item(0)
-              ?.getElementsByTagName("b")
-              ?.item(0)
-            )
-
           this._tableData.push({
             ...parePartModel,
             position: this._tableData.length + 1,
-            secondHandAveragePrice: parePartModel.secondHandAveragePrice ? parePartModel.secondHandAveragePrice / parePartsCount : 0,
-            newAveragePrice: parePartModel.newAveragePrice ? parePartModel.newAveragePrice / parePartsCount : 0
+            secondHandAveragePrice: parePartModel.secondHandAveragePrice ? parePartModel.secondHandAveragePrice / count : 0,
+            newAveragePrice: parePartModel.newAveragePrice ? parePartModel.newAveragePrice / count : 0
           });
 
-          if (this._selectedParePart?.value) {
+          if ((!!this._selectedParePart?.length
+              ? this._selectedParePart?.length
+              : this._pareParts?.length) === this._tableData?.length || page > 60) {
             this._loadingInProgress = false;
-            this.testTable();
-          } else {
-            if (10 === this._tableData?.length) {
-              this._loadingInProgress = false;
-              this.testTable();
-            }
           }
+          this.testTable();
         }
       });
   }

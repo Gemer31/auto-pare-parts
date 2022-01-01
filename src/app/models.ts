@@ -1,5 +1,5 @@
 export interface TableRow {
-  name: string;
+  name?: string;
   position?: number;
   secondHandMinPrice?: number;
   secondHandAveragePrice?: number;
