@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
 import { SelectValue, SiteElementsName, TableRow } from "./models";
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-root',
@@ -111,6 +112,21 @@ export class AppComponent implements OnInit {
         parePart
       );
     })
+  }
+
+  public _exportExcel(): void {
+    {
+      /* table id is passed over here */
+      let element = document.getElementById('excel-table');
+      const ws: XLSX.WorkSheet =XLSX.utils.table_to_sheet(element);
+
+      /* generate workbook and add the worksheet */
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+      /* save to file */
+      XLSX.writeFile(wb, "таблица_с_ценами.xlsx");
+    }
   }
 
   public testTable(): void {

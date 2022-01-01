@@ -44,8 +44,15 @@
   >Рассчитать</button>
 </div>
 
+<button
+  mat-flat-button
+  color="primary"
+  (click)="_exportExcel()"
+>Экспорт Excel</button>
+
 <table
   mat-table
+  id="excel-table"
   [dataSource]="_tableData"
   class="mat-elevation-z8 app-table">
 
