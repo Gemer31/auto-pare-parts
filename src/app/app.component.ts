@@ -67,15 +67,8 @@ export class AppComponent implements OnInit {
 
   public _tableRows: TableRow[] = [];
 
-  tableColumns: string[] = ['position', 'name', 'secondHandMinPrice'];
-  dataSource = ELEMENT_DATA;
-
-  secondHandMinPrice?: number;
-  secondHandAveragePrice?: number;
-  secondHandMaxPrice?: number;
-  newMinPrice?: number;
-  newAveragePrice?: number;
-  newMaxPrice?: number;
+  tableColumns: string[] = ['position', 'name', 'minPrice', 'averagePrice', 'maxPrice'];
+  tableData = ELEMENT_DATA;
 
   ngOnInit() {
     fetch(this.defaultURL)
@@ -133,5 +126,5 @@ export class AppComponent implements OnInit {
       });
   }
 
-  class="modern-page-next"
+  class = "modern-page-next"
 }

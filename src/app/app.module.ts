@@ -23,10 +23,6 @@ import { MatButtonModule } from "@angular/material/button";
     MatTableModule,
     HttpClientModule,
     MatButtonModule,
-    NgModule
-  ],
-  providers: [
-    XMLHttpRequest,
   ],
   bootstrap: [AppComponent]
 })
