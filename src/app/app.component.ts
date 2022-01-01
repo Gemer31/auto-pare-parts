@@ -64,10 +64,10 @@ export class AppComponent implements OnInit {
     });
   }
 
-  private prepareUrl(page: number, parePartName?: string): string {
+  private prepareUrl(page: number, parePart: SelectValue): string {
     let url: string = this.defaultURL + "zchbu/";
 
-    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePartName}/`;
+    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePart.value}/`;
 
     if (this._selectedMarka?.value) {
       url += `marka_${this._selectedMarka.value}/`;
@@ -77,7 +77,7 @@ export class AppComponent implements OnInit {
     }
     url += "?ACTION=REWRITED3&FORM_DATA=";
 
-    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePartName}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
+    url += `zapchast_${this._selectedParePart?.value ? this._selectedParePart.value : parePart.value}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
 
     if (this._selectedMarka?.value) {
       url += `marka_${this._selectedMarka.value}${this._selectedModel?.value ? "%2F" : ""}`;
@@ -105,7 +105,7 @@ export class AppComponent implements OnInit {
     this._loadingInProgress = true
 
     if (this._selectedParePart?.value) {
-      this.resolvePage(parePartModel, 1, false);
+      this.resolvePage(parePartModel, 1);
     } else {
       const testParts: SelectValue[] = [
         this._pareParts[0],
@@ -120,7 +120,7 @@ export class AppComponent implements OnInit {
         this._pareParts[9],
       ]
       testParts.forEach((parePart: SelectValue) => {
-        this.resolvePage({...parePartModel, name: parePart.text as string}, 1, true);
+        parePart.value?.length && this.resolvePage({...parePartModel, name: parePart.text as string}, 1, parePart);
       })
     }
   }
@@ -132,8 +132,8 @@ export class AppComponent implements OnInit {
     this._tableData = data;
   }
 
-  private resolvePage(parePartModel: TableRow, page: number, setParePartFromModel?: boolean): void {
-    this.getHtml(this.prepareUrl(page, parePartModel.name))
+  private resolvePage(parePartModel: TableRow, page: number, parePart?: SelectValue): void {
+    this.getHtml(this.prepareUrl(page, parePart as SelectValue))
       .then((html: Document) => {
         const elements: Element[] = Array.from(html.getElementsByClassName(SiteElementsName.ITEM_LIST));
         const nextPageExist: Element = html.getElementsByClassName(SiteElementsName.NEXT_BUTTON)?.item(0) as Element;
