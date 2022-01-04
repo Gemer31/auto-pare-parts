@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
-import { SelectValue, SiteElementsName, TableRow } from "./models";
+import { ParePartCalculatedModel, SelectValue, SiteElementsName, TableRow } from "./models";
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -16,15 +16,10 @@ export class AppComponent implements OnInit {
   public _markas: SelectValue[] = [];
   public _pareParts: SelectValue[] = [];
   public _models: SelectValue[] = [];
-
   public _selectedMarka: SelectValue = {};
   public _selectedParePart: SelectValue[] = [];
   public _selectedModel: SelectValue = {};
-
-  public _tableRows: TableRow[] = [];
-  public _tableColumns: string[] = ['position', 'name', 'minPrice', 'averagePrice', 'maxPrice'];
   public _tableData: TableRow[] = [];
-
   public _loadingInProgress: boolean = false;
 
   constructor(
@@ -92,10 +87,12 @@ export class AppComponent implements OnInit {
   }
 
   public _calculateClicked(): void {
-    const parePartModel: TableRow = {
+    const parePartModel: ParePartCalculatedModel = {
+      secondHandElementsCounter: 0,
       secondHandMinPrice: 0,
       secondHandAveragePrice: 0,
       secondHandMaxPrice: 0,
+      newElementsCounter: 0,
       newMinPrice: 0,
       newAveragePrice: 0,
       newMaxPrice: 0
@@ -108,25 +105,22 @@ export class AppComponent implements OnInit {
       parePart.value?.length && this.resolvePage(
         {...parePartModel, name: parePart.text as string},
         1,
-        0,
         parePart
       );
     })
   }
 
   public _exportExcel(): void {
-    {
-      /* table id is passed over here */
-      let element = document.getElementById('excel-table');
-      const ws: XLSX.WorkSheet =XLSX.utils.table_to_sheet(element);
+    /* table id is passed over here */
+    let element = document.getElementById('excel-table');
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
 
-      /* generate workbook and add the worksheet */
-      const wb: XLSX.WorkBook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    /* generate workbook and add the worksheet */
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
-      /* save to file */
-      XLSX.writeFile(wb, "таблица_с_ценами.xlsx");
-    }
+    /* save to file */
+    XLSX.writeFile(wb, "таблица_с_ценами.xlsx");
   }
 
   public testTable(): void {
@@ -137,9 +131,8 @@ export class AppComponent implements OnInit {
   }
 
   private resolvePage(
-    parePartModel: TableRow,
+    parePartModel: ParePartCalculatedModel,
     page: number,
-    count: number = 0,
     parePart?: SelectValue
   ): void {
     this.getHtml(this.prepareUrl(page, parePart as SelectValue))
@@ -169,6 +162,7 @@ export class AppComponent implements OnInit {
             parePartModel.newAveragePrice = !parePartModel.newAveragePrice
               ? parePartPrice
               : parePartModel.newAveragePrice + parePartPrice;
+            parePartModel.newElementsCounter += 1;
           } else {
             if (!parePartModel.secondHandMinPrice || parePartModel.secondHandMinPrice > parePartPrice) {
               parePartModel.secondHandMinPrice = parePartPrice
@@ -179,22 +173,27 @@ export class AppComponent implements OnInit {
             parePartModel.secondHandAveragePrice = !parePartModel.secondHandAveragePrice
               ? parePartPrice
               : parePartModel.secondHandAveragePrice + parePartPrice;
+            parePartModel.secondHandElementsCounter += 1;
           }
         });
 
         if (nextPageExist && page < 61) {
-          this.resolvePage({...parePartModel}, page + 1, count + elements.length, parePart as SelectValue);
+          this.resolvePage({...parePartModel}, page + 1, parePart as SelectValue);
         } else {
           this._tableData.push({
             ...parePartModel,
             position: this._tableData.length + 1,
-            secondHandAveragePrice: parePartModel.secondHandAveragePrice ? parePartModel.secondHandAveragePrice / count : 0,
-            newAveragePrice: parePartModel.newAveragePrice ? parePartModel.newAveragePrice / count : 0
+            secondHandAveragePrice: parePartModel.secondHandElementsCounter === 0
+              ? 0
+              : (parePartModel?.secondHandAveragePrice || 0) / parePartModel.secondHandElementsCounter,
+            newAveragePrice: parePartModel.newElementsCounter === 0
+              ? 0
+              : (parePartModel.newAveragePrice || 0) / parePartModel.newElementsCounter,
           });
 
           if ((!!this._selectedParePart?.length
-              ? this._selectedParePart?.length
-              : this._pareParts?.length) === this._tableData?.length || page > 60) {
+            ? this._selectedParePart?.length
+            : this._pareParts?.length) === this._tableData?.length || page > 60) {
             this._loadingInProgress = false;
           }
           this.testTable();

@@ -9,6 +9,11 @@ export interface TableRow {
   newMaxPrice?: number;
 }
 
+export interface ParePartCalculatedModel extends TableRow{
+  secondHandElementsCounter: number;
+  newElementsCounter: number;
+}
+
 export interface SelectValue {
   value?: string;
   text?: string;
