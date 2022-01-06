@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { AppComponent } from './app.component';
+import { ImageViewerComponent } from './image-viewer.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { MatCommonModule, MatOptionModule } from "@angular/material/core";
@@ -13,40 +13,22 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ImageViewerModule } from "./components/image-viewer/image-viewer.module";
-import { MatIconModule } from "@angular/material/icon";
-import { MatBadgeModule } from "@angular/material/badge";
 
 @NgModule({
   declarations: [
-    AppComponent
+    ImageViewerComponent
   ],
   imports: [
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
-    ImageViewerModule,
-
-
-    MatCommonModule,
-    MatSelectModule,
-    MatTableModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatOptionModule,
-    MatProgressBarModule,
-    MatAutocompleteModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
-    MatBadgeModule,
   ],
-  providers: [
-    CurrencyPipe,
-    MatSnackBar,
+  exports: [
+    ImageViewerComponent
   ],
   bootstrap: [
-    AppComponent
+    ImageViewerComponent
   ]
 })
-export class AppModule {
+export class ImageViewerModule {
 }

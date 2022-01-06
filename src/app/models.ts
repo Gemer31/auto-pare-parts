@@ -2,11 +2,15 @@ export interface TableRow {
   name?: string;
   position?: number;
   secondHandMinPrice?: number;
+  secondHandMinPriceImages?: HTMLImageElement[];
   secondHandAveragePrice?: number;
   secondHandMaxPrice?: number;
+  secondHandMaxPriceImages?: HTMLImageElement[];
   newMinPrice?: number;
+  newMinPriceImages?: HTMLImageElement[];
   newAveragePrice?: number;
   newMaxPrice?: number;
+  newMaxPriceImages?: HTMLImageElement[];
 }
 
 export interface ParePartCalculatedModel extends TableRow{
@@ -29,4 +33,6 @@ export enum SiteElementsName {
   MARKA = "marka",
   ZAPCHAST = "zapchast",
   MODEL = "model",
+  IMAGE_WRAP = "image-wrap",
+  BRAZZERS_GALLARY = "brazzers-gallery"
 }

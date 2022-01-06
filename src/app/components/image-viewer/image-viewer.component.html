@@ -1,0 +1,8 @@
+<div class="image-viewer">
+  <div class="image-viewer_current" [innerHTML]="images[_currentIndex].outerHTML"></div>
+  <div class="image-viewer_bar">
+    <ng-container *ngFor="let image of images">
+      <div [innerHTML]="image.outerHTML"></div>
+    </ng-container>
+  </div>
+</div>

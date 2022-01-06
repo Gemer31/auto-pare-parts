@@ -2,8 +2,21 @@
   &-form {
     display: flex;
   }
+
   &-table {
     width: 100%;
+  }
+
+  &-models {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    width: 100%;
+
+    .mat-progress-spinner {
+      position: absolute;
+      padding-right: 30px;
+    }
   }
 
   .mat-form-field,
@@ -17,5 +30,9 @@
 
   .mat-form-field-wrapper {
     padding-bottom: 0;
+  }
+
+  .mat-icon {
+    cursor: pointer;
   }
 }

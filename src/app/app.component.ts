@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
 import { ParePartCalculatedModel, SelectValue, SiteElementsName, TableRow } from "./models";
+import { MatSnackBar, } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -21,9 +22,12 @@ export class AppComponent implements OnInit {
   public _selectedModel: SelectValue = {};
   public _tableData: TableRow[] = [];
   public _loadingInProgress: boolean = false;
+  public _loadingModelsInProgress: boolean = false;
+  public _viewerImages: HTMLImageElement[] = [];
 
   constructor(
     private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar,
   ) {
   }
 
@@ -31,8 +35,7 @@ export class AppComponent implements OnInit {
     this.getHtml(this.defaultURL)
       .then((html: Document) => {
         this.collectValues(html, SiteElementsName.MARKA, this._markas);
-        this.collectValues(html, SiteElementsName.ZAPCHAST, this._pareParts);
-        console.log(this._pareParts?.length);
+        this.collectValues(html, SiteElementsName.ZAPCHAST, this._pareParts); //1728
       });
   }
 
@@ -45,6 +48,7 @@ export class AppComponent implements OnInit {
   }
 
   public _markaChanged(event: SelectValue): void {
+    this._loadingModelsInProgress = true;
     this._models = [];
     this._selectedModel = {};
     this._selectedMarka = event;
@@ -52,6 +56,7 @@ export class AppComponent implements OnInit {
     this.getHtml(this.defaultURL + `zchbu/marka_${event.value}/`)
       .then((html: Document) => {
         this.collectValues(html, SiteElementsName.MODEL, this._models);
+        this._loadingModelsInProgress = false;
       });
   }
 
@@ -121,6 +126,16 @@ export class AppComponent implements OnInit {
 
     /* save to file */
     XLSX.writeFile(wb, "таблица_с_ценами.xlsx");
+
+    this.snackBar.open("Таблица сохранена", "",{
+      horizontalPosition: "end",
+      verticalPosition: "top",
+      duration: 3000,
+    });
+  }
+
+  public _openImageViewer(images: HTMLImageElement[]): void {
+    this._viewerImages = images;
   }
 
   public testTable(): void {
@@ -151,12 +166,16 @@ export class AppComponent implements OnInit {
             ?.trim();
           const parePartPrice: number = Number(value?.substring(1, value.length - 1));
           const isNewParePart: boolean = !!element.getElementsByClassName(SiteElementsName.NEW)?.length;
+          const images: HTMLImageElement[] = Array.from(element.getElementsByClassName("thumbnail no-margin")) as HTMLImageElement[];
+          images.forEach((img) => {img.src = this.defaultURL + img.src.substring(21)});
 
           if (isNewParePart) {
             if (!parePartModel.newMinPrice || parePartModel.newMinPrice > parePartPrice) {
+              parePartModel.newMinPriceImages = images;
               parePartModel.newMinPrice = parePartPrice
             }
             if (!parePartModel.newMaxPrice || parePartModel.newMaxPrice < parePartPrice) {
+              parePartModel.newMaxPriceImages = images;
               parePartModel.newMaxPrice = parePartPrice
             }
             parePartModel.newAveragePrice = !parePartModel.newAveragePrice
@@ -165,9 +184,11 @@ export class AppComponent implements OnInit {
             parePartModel.newElementsCounter += 1;
           } else {
             if (!parePartModel.secondHandMinPrice || parePartModel.secondHandMinPrice > parePartPrice) {
+              parePartModel.secondHandMinPriceImages = images;
               parePartModel.secondHandMinPrice = parePartPrice
             }
             if (!parePartModel.secondHandMaxPrice || parePartModel.secondHandMaxPrice < parePartPrice) {
+              parePartModel.secondHandMaxPriceImages = images;
               parePartModel.secondHandMaxPrice = parePartPrice
             }
             parePartModel.secondHandAveragePrice = !parePartModel.secondHandAveragePrice
