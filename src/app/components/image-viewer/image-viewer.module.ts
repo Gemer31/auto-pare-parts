@@ -13,6 +13,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconModule } from "@angular/material/icon";
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
+    MatIconModule,
   ],
   exports: [
     ImageViewerComponent

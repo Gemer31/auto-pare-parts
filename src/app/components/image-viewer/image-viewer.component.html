@@ -1,8 +1,19 @@
 <div class="image-viewer">
-  <div class="image-viewer_current" [innerHTML]="images[_currentIndex].outerHTML"></div>
+  <mat-icon class="image-viewer_buttons __close" (click)="closeClick.emit()">close</mat-icon>
+  <mat-icon class="image-viewer_buttons __previous" (click)="_previous()">arrow_back_ios</mat-icon>
+  <mat-icon class="image-viewer_buttons __next" (click)="_next()">arrow_forward_ios</mat-icon>
+
+  <div
+    class="image-viewer_current"
+    [innerHTML]="images[_currentIndex].outerHTML"
+  ></div>
   <div class="image-viewer_bar">
-    <ng-container *ngFor="let image of images">
-      <div [innerHTML]="image.outerHTML"></div>
-    </ng-container>
+    <div
+      class="image-viewer_bar-image"
+      *ngFor="let image of images; let index = index"
+      [class.__selected]="index === this._currentIndex"
+      [innerHTML]="image.outerHTML"
+      (click)="_currentIndex = index"
+    ></div>
   </div>
 </div>

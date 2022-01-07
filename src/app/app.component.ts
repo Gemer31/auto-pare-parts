@@ -221,4 +221,8 @@ export class AppComponent implements OnInit {
         }
       });
   }
+
+  public _closeImageViewer(): void {
+    this._viewerImages = [];
+  }
 }

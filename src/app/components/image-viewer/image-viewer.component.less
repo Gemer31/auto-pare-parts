@@ -1,5 +1,64 @@
 .image-viewer {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.75);
+  align-items: center;
+  justify-content: space-around;
+  height: 100%;
+  width: 100%;
+
+  .mat-icon {
+    color: white;
+  }
+
   &_bar {
     display: flex;
+
+    &-image {
+      > img {
+        width: 150px;
+        margin: 0 5px;
+      }
+
+      &:not(.__selected) {
+        cursor: pointer;
+        opacity: 0.2;
+      }
+
+      &.__selected {
+        border-radius: 5px;
+        animation-duration: .5s;
+      }
+    }
+  }
+
+  &_buttons {
+    position: absolute;
+
+    &:hover {
+      background: green;
+    }
+
+    &.__close {
+      right: 2%;
+      top: 2%;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 1;
+    }
+
+    &.__next {
+      padding: 20% 2%;
+      border-radius: 5px 0 0 5px;
+      right: 0;
+    }
+
+    &.__previous {
+      padding: 20% 2%;
+      border-radius: 0 5px 5px 0;
+      left: 0;
+    }
   }
 }
