@@ -1,31 +1,25 @@
 <div class="app-form">
-  <mat-form-field appearance="fill">
-    <mat-label>Марка</mat-label>
-    <mat-select (valueChange)="_markaChanged($event)">
-      <mat-option
-        *ngFor="let marka of _markas"
-        [value]="marka"
+  <div class="app-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Марка</mat-label>
+      <mat-select
+        (valueChange)="_markaChanged($event)"
       >
-        {{marka.text}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+        <mat-option
+          *ngFor="let marka of _markas"
+          [value]="marka"
+        >
+          {{marka.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
 
-<!--    <mat-form-field class="example-full-width" appearance="fill">-->
-<!--      <mat-label>Марка</mat-label>-->
-<!--      <input type="text"-->
-<!--             placeholder="Pick one"-->
-<!--             aria-label="Number"-->
-<!--             matInput-->
-<!--             [matAutocomplete]="auto">-->
-<!--      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">-->
-<!--        <mat-option *ngFor="let marka of _markas" [value]="_selectedMarka">-->
-<!--          {{marka.text}}-->
-<!--        </mat-option>-->
-<!--      </mat-autocomplete>-->
-<!--    </mat-form-field>-->
-
-  <div class="app-models">
+  <div class="app-field">
     <mat-form-field appearance="fill">
       <mat-label>Модель</mat-label>
       <mat-select
@@ -45,32 +39,79 @@
     ></mat-spinner>
   </div>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Название запчасти</mat-label>
-    <mat-select
-      multiple
-      (valueChange)="_selectedParePart = $event">
-      <mat-option
-        *ngFor="let parePart of _pareParts"
-        [value]="parePart"
-      >
-        {{parePart.text}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <div class="app-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Запчасти</mat-label>
+      <mat-select
+        multiple
+        (valueChange)="_selectedParePart = $event">
+        <mat-option
+          *ngFor="let parePart of _pareParts"
+          [value]="parePart"
+        >
+          {{parePart.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
 
   <button
     mat-flat-button
     color="warn"
     (click)="_calculateClicked()"
-  >Рассчитать</button>
+  >Рассчитать
+  </button>
 </div>
+
+
+<!--<div class="app-form">-->
+<!--  <form>-->
+<!--    <mat-form-field-->
+<!--      appearance="fill">-->
+<!--      <mat-label>Марка</mat-label>-->
+<!--      <input-->
+<!--        type="text"-->
+<!--        matInput-->
+<!--        [formControl]="_markasControl"-->
+<!--        [matAutocomplete]="auto"-->
+<!--      >-->
+<!--      <mat-autocomplete #auto="matAutocomplete" [displayWith]="_displayFn">-->
+<!--        <mat-option *ngFor="let marka of _filteredMarkas | async" [value]="marka">-->
+<!--          {{marka.text}}-->
+<!--        </mat-option>-->
+<!--      </mat-autocomplete>-->
+<!--    </mat-form-field>-->
+
+<!--    <mat-form-field-->
+<!--      appearance="fill">-->
+<!--      <mat-label>Запчасти</mat-label>-->
+<!--      <input-->
+<!--        type="text"-->
+<!--        matInput-->
+<!--        [formControl]="_parePartsControl"-->
+<!--        [matAutocomplete]="auto"-->
+<!--      >-->
+<!--      <mat-autocomplete #auto="matAutocomplete" [displayWith]="_displayFn">-->
+<!--        <mat-select multiple>-->
+<!--          <mat-option *ngFor="let parePart of _filteredPareParts | async" [value]="parePart">-->
+<!--            {{parePart.text}}-->
+<!--          </mat-option>-->
+<!--        </mat-select>-->
+<!--      </mat-autocomplete>-->
+<!--    </mat-form-field>-->
+<!--  </form>-->
+<!--</div>-->
 
 <button
   mat-flat-button
   color="primary"
   (click)="_exportExcel()"
->Экспорт Excel</button>
+>Экспорт Excel
+</button>
 
 <table
   mat-table
@@ -79,29 +120,61 @@
   class="mat-elevation-z8 app-table">
 
   <ng-container matColumnDef="position">
-    <th mat-header-cell *matHeaderCellDef rowspan="2"> No. </th>
-    <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+    <th mat-header-cell *matHeaderCellDef rowspan="2">
+      <div class="app-table-cell">
+        No.
+      </div>
+    </th>
+    <td mat-cell *matCellDef="let element">
+      <div class="app-table-cell">
+        {{element.position}}
+      </div>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef rowspan="2"> Запчасть </th>
-    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    <th mat-header-cell *matHeaderCellDef rowspan="2">
+      <div class="app-table-cell">
+        Запчасть
+      </div>
+    </th>
+    <td mat-cell *matCellDef="let element">
+      <div class="app-table-cell">
+        {{element.name}}
+      </div>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="minPrice">
-    <th mat-header-cell *matHeaderCellDef colspan="2"> Минимальная цена </th>
+    <th mat-header-cell *matHeaderCellDef colspan="2">
+      <div class="app-table-cell">
+        Минимальная цена
+      </div>
+    </th>
   </ng-container>
 
   <ng-container matColumnDef="averagePrice">
-    <th mat-header-cell *matHeaderCellDef colspan="2"> Средняя цена </th>
+    <th mat-header-cell *matHeaderCellDef colspan="2">
+      <div class="app-table-cell">
+        Средняя цена
+      </div>
+    </th>
   </ng-container>
 
   <ng-container matColumnDef="maxPrice">
-    <th mat-header-cell *matHeaderCellDef colspan="2"> Максимальная цена </th>
+    <th mat-header-cell *matHeaderCellDef colspan="2">
+      <div class="app-table-cell">
+        Максимальная цена
+      </div>
+    </th>
   </ng-container>
 
   <ng-container matColumnDef="secondHandMinPrice">
-    <th mat-header-cell *matHeaderCellDef> б/у </th>
+    <th mat-header-cell *matHeaderCellDef>
+      <div class="app-table-cell">
+        б/у
+      </div>
+    </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
         {{(element.secondHandMinPrice ? (element.secondHandMinPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
@@ -112,13 +185,18 @@
           matBadgePosition="before"
           matBadgeColor="warn"
           (click)="_openImageViewer(element.secondHandMinPriceImages)"
-        >image_search</mat-icon>
+        >image_search
+        </mat-icon>
       </div>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="newMinPrice">
-    <th mat-header-cell *matHeaderCellDef> новая </th>
+    <th mat-header-cell *matHeaderCellDef>
+      <div class="app-table-cell">
+        новая
+      </div>
+    </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
         {{(element.newMinPrice ? (element.newMinPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
@@ -129,27 +207,44 @@
           matBadgePosition="before"
           matBadgeColor="warn"
           (click)="_openImageViewer(element.newMinPriceImages)"
-        >image_search</mat-icon>
+        >image_search
+        </mat-icon>
       </div>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="secondHandAveragePrice">
-    <th mat-header-cell *matHeaderCellDef> б/у </th>
+    <th mat-header-cell *matHeaderCellDef>
+      <div class="app-table-cell">
+        б/у
+      </div>
+    </th>
     <td mat-cell *matCellDef="let element">
-      {{(element.secondHandAveragePrice ? (element.secondHandAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+      <div class="app-table-cell">
+        {{(element.secondHandAveragePrice ? (element.secondHandAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+      </div>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="newAveragePrice">
-    <th mat-header-cell *matHeaderCellDef> новая </th>
+    <th mat-header-cell *matHeaderCellDef>
+      <div class="app-table-cell">
+        новая
+      </div>
+    </th>
     <td mat-cell *matCellDef="let element">
-      {{(element.newAveragePrice ? (element.newAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+      <div class="app-table-cell">
+        {{(element.newAveragePrice ? (element.newAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+      </div>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="secondHandMaxPrice">
-    <th mat-header-cell *matHeaderCellDef> б/у </th>
+    <th mat-header-cell *matHeaderCellDef>
+      <div class="app-table-cell">
+        б/у
+      </div>
+    </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
         {{(element.secondHandMaxPrice ? (element.secondHandMaxPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
@@ -160,13 +255,18 @@
           matBadgePosition="before"
           matBadgeColor="warn"
           (click)="_openImageViewer(element.secondHandMaxPriceImages)"
-        >image_search</mat-icon>
+        >image_search
+        </mat-icon>
       </div>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="newMaxPrice">
-    <th mat-header-cell *matHeaderCellDef> новая </th>
+    <th mat-header-cell *matHeaderCellDef>
+      <div class="app-table-cell">
+        новая
+      </div>
+    </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
         {{(element.newMaxPrice ? (element.newMaxPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
@@ -177,14 +277,17 @@
           matBadgePosition="before"
           matBadgeColor="warn"
           (click)="_openImageViewer(element.newMaxPriceImages)"
-        >image_search</mat-icon>
+        >image_search
+        </mat-icon>
       </div>
     </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="['position', 'name', 'minPrice', 'averagePrice', 'maxPrice']"></tr>
-  <tr mat-header-row *matHeaderRowDef="['secondHandMinPrice', 'newMinPrice', 'secondHandAveragePrice', 'newAveragePrice', 'secondHandMaxPrice', 'newMaxPrice']"></tr>
-  <tr mat-row *matRowDef="let row; columns: ['position', 'name', 'secondHandMinPrice', 'newMinPrice', 'secondHandAveragePrice', 'newAveragePrice', 'secondHandMaxPrice', 'newMaxPrice'];"></tr>
+  <tr mat-header-row
+      *matHeaderRowDef="['secondHandMinPrice', 'newMinPrice', 'secondHandAveragePrice', 'newAveragePrice', 'secondHandMaxPrice', 'newMaxPrice']"></tr>
+  <tr mat-row
+      *matRowDef="let row; columns: ['position', 'name', 'secondHandMinPrice', 'newMinPrice', 'secondHandAveragePrice', 'newAveragePrice', 'secondHandMaxPrice', 'newMaxPrice'];"></tr>
 </table>
 
 <mat-progress-bar
@@ -194,6 +297,7 @@
 
 <image-viewer
   *ngIf="_viewerImages?.length"
+  class="app-viewer"
   [images]="_viewerImages"
   (closeClick)="_closeImageViewer()"
 ></image-viewer>

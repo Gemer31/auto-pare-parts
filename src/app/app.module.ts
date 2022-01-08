@@ -16,6 +16,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ImageViewerModule } from "./components/image-viewer/image-viewer.module";
 import { MatIconModule } from "@angular/material/icon";
 import { MatBadgeModule } from "@angular/material/badge";
+import { ReactiveFormsModule } from "@angular/forms";
+import { MatInputModule } from "@angular/material/input";
 
 @NgModule({
   declarations: [
@@ -26,6 +28,7 @@ import { MatBadgeModule } from "@angular/material/badge";
     BrowserModule,
     BrowserAnimationsModule,
     ImageViewerModule,
+    ReactiveFormsModule,
 
 
     MatCommonModule,
@@ -39,6 +42,7 @@ import { MatBadgeModule } from "@angular/material/badge";
     MatProgressSpinnerModule,
     MatIconModule,
     MatBadgeModule,
+    MatInputModule,
   ],
   providers: [
     CurrencyPipe,

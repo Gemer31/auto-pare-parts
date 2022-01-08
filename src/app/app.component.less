@@ -9,10 +9,11 @@
     &-cell {
       display: flex;
       align-items: center;
+      justify-content: space-around;
     }
   }
 
-  &-models {
+  &-field {
     display: flex;
     align-items: center;
     justify-content: end;
@@ -22,6 +23,10 @@
       position: absolute;
       padding-right: 30px;
     }
+  }
+
+  &-viewer {
+    transition: all 0.3s ease;
   }
 
   .mat-form-field,
@@ -39,6 +44,15 @@
 
   .mat-icon {
     cursor: pointer;
-    margin-left: 20px;
+  }
+
+  td.mat-cell,
+  th.mat-header-cell {
+    border: 1px solid rgba(255,255,255,.12);
+  }
+
+  td.mat-cell:first-of-type,
+  th.mat-header-cell:first-of-type {
+    padding: 0;
   }
 }

@@ -4,6 +4,7 @@ export interface TableRow {
   secondHandMinPrice?: number;
   secondHandMinPriceImages?: HTMLImageElement[];
   secondHandAveragePrice?: number;
+  secondHandAveragePriceImages?: HTMLImageElement[];
   secondHandMaxPrice?: number;
   secondHandMaxPriceImages?: HTMLImageElement[];
   newMinPrice?: number;
@@ -13,9 +14,9 @@ export interface TableRow {
   newMaxPriceImages?: HTMLImageElement[];
 }
 
-export interface ParePartCalculatedModel extends TableRow{
-  secondHandElementsCounter: number;
-  newElementsCounter: number;
+export interface ElementValues {
+  parePartPrice: number;
+  images: HTMLImageElement[];
 }
 
 export interface SelectValue {
