@@ -237,10 +237,11 @@ export class AppComponent implements OnInit {
       ?.item(0)?.innerHTML
       ?.trim();
     const images: HTMLImageElement[] = Array.from(element.getElementsByClassName("thumbnail no-margin")) as HTMLImageElement[];
+    images?.forEach((img: HTMLImageElement) => { img.src = this.defaultURL + img.src.substring(21) })
 
     return {
       parePartPrice: Number(value?.substring(1, value.length - 1)),
-      images: images?.map((img) => ({ ...img, src: this.defaultURL + img.src.substring(21) })),
+      images
     }
   }
 
