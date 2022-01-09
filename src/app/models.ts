@@ -10,6 +10,7 @@ export interface TableRow {
   newMinPrice?: number;
   newMinPriceImages?: HTMLImageElement[];
   newAveragePrice?: number;
+  newAveragePriceImages?: HTMLImageElement[];
   newMaxPrice?: number;
   newMaxPriceImages?: HTMLImageElement[];
 }
@@ -24,6 +25,18 @@ export interface SelectValue {
   text?: string;
 }
 
+export interface AppForm {
+  parePart?: SelectValue[];
+  marka?: SelectValue;
+  model?: SelectValue;
+  yearFrom?: SelectValue;
+  yearTo?: SelectValue;
+  body?: SelectValue;
+  engine?: SelectValue;
+  fuel?: SelectValue;
+  gear?: SelectValue;
+}
+
 export enum SiteElementsName {
   CURRENCY_LIST = "currency-list",
   NEXT_BUTTON = "modern-page-next",
@@ -34,6 +47,10 @@ export enum SiteElementsName {
   MARKA = "marka",
   ZAPCHAST = "zapchast",
   MODEL = "model",
+  YEAR = "god1",
+  FUEL = "toplivo",
+  GEAR = "korobka",
+  BODY = "kuzov",
   IMAGE_WRAP = "image-wrap",
   BRAZZERS_GALLARY = "brazzers-gallery"
 }

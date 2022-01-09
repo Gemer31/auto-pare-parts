@@ -1,6 +1,18 @@
 .app {
-  &-form {
+  &-header {
     display: flex;
+
+    &_form {
+      width: 80%;
+    }
+
+    &_buttons {
+      width: 20%;
+
+      .mat-flat-button {
+        height: 50%;
+      }
+    }
   }
 
   &-table {
@@ -10,18 +22,6 @@
       display: flex;
       align-items: center;
       justify-content: space-around;
-    }
-  }
-
-  &-field {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    width: 100%;
-
-    .mat-progress-spinner {
-      position: absolute;
-      padding-right: 30px;
     }
   }
 

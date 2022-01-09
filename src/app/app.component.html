@@ -1,70 +1,22 @@
-<div class="app-form">
-  <div class="app-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Марка</mat-label>
-      <mat-select
-        (valueChange)="_markaChanged($event)"
-      >
-        <mat-option
-          *ngFor="let marka of _markas"
-          [value]="marka"
-        >
-          {{marka.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
+<div class="app-header">
+  <app-form
+    class="app-header_form"
+    [(appForm)]="_appForm"
+    (parePartsChange)="_pareParts = $event"
+  ></app-form>
 
-  <div class="app-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Модель</mat-label>
-      <mat-select
-        [disabled]="!_models?.length"
-        (valueChange)="_selectedModel = $event">
-        <mat-option
-          *ngFor="let model of _models"
-          [value]="model"
-        >
-          {{model.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingModelsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
+  <div class="app-header_buttons">
+    <button
+      mat-flat-button
+      color="warn"
+      (click)="_calculateClicked()"
+    >Рассчитать</button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="_exportExcel()"
+    >Экспорт Excel</button>
   </div>
-
-  <div class="app-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Запчасти</mat-label>
-      <mat-select
-        multiple
-        (valueChange)="_selectedParePart = $event">
-        <mat-option
-          *ngFor="let parePart of _pareParts"
-          [value]="parePart"
-        >
-          {{parePart.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
-
-  <button
-    mat-flat-button
-    color="warn"
-    (click)="_calculateClicked()"
-  >Рассчитать
-  </button>
 </div>
 
 
@@ -105,13 +57,6 @@
 <!--    </mat-form-field>-->
 <!--  </form>-->
 <!--</div>-->
-
-<button
-  mat-flat-button
-  color="primary"
-  (click)="_exportExcel()"
->Экспорт Excel
-</button>
 
 <table
   mat-table
@@ -222,6 +167,15 @@
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
         {{(element.secondHandAveragePrice ? (element.secondHandAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+
+        <mat-icon
+          *ngIf="element.secondHandAveragePriceImages?.length"
+          matBadge="{{element.secondHandAveragePriceImages.length}}"
+          matBadgePosition="before"
+          matBadgeColor="warn"
+          (click)="_openImageViewer(element.secondHandAveragePriceImages)"
+        >image_search
+        </mat-icon>
       </div>
     </td>
   </ng-container>
@@ -235,6 +189,15 @@
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
         {{(element.newAveragePrice ? (element.newAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+
+        <mat-icon
+          *ngIf="element.newAveragePriceImages?.length"
+          matBadge="{{element.newAveragePriceImages.length}}"
+          matBadgePosition="before"
+          matBadgeColor="warn"
+          (click)="_openImageViewer(element.newAveragePriceImages)"
+        >image_search
+        </mat-icon>
       </div>
     </td>
   </ng-container>

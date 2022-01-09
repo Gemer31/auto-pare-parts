@@ -2,9 +2,9 @@
     <mat-icon class="image-viewer_buttons __close" (click)="closeClick.emit()">close</mat-icon>
 
   <div class="image-viewer_current">
-    <mat-icon class="image-viewer_buttons __previous" (click)="_previous()">arrow_back_ios</mat-icon>
+    <mat-icon class="image-viewer_buttons __move __previous" (click)="_previous()">arrow_back_ios</mat-icon>
     <div class="image-viewer_current-img" [innerHTML]="images[_currentIndex].outerHTML"></div>
-    <mat-icon class="image-viewer_buttons __next" (click)="_next()">arrow_forward_ios</mat-icon>
+    <mat-icon class="image-viewer_buttons __move __next" (click)="_next()">arrow_forward_ios</mat-icon>
   </div>
 
   <div class="image-viewer_bar">

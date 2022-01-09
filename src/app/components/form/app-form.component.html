@@ -1,0 +1,165 @@
+<div class="form-row">
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Марка</mat-label>
+      <mat-select
+        (valueChange)="_formChanged($event, FORM_FIELDS.MARKA)"
+      >
+        <mat-option
+          *ngFor="let marka of _markas"
+          [value]="marka"
+        >
+          {{marka.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Модель</mat-label>
+      <mat-select
+        [disabled]="!_models?.length"
+        (valueChange)="_formChanged($event, FORM_FIELDS.MODEL)"
+      >
+        <mat-option
+          *ngFor="let model of _models"
+          [value]="model"
+        >
+          {{model.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingModelsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Запчасти</mat-label>
+      <mat-select
+        multiple
+        (valueChange)="_formChanged($event, FORM_FIELDS.PARE_PART)"
+      >
+        <mat-option
+          *ngFor="let parePart of _pareParts"
+          [value]="parePart"
+        >
+          {{parePart.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Кузов</mat-label>
+      <mat-select
+        (valueChange)="_formChanged($event, FORM_FIELDS.BODY)"
+      >
+        <mat-option
+          *ngFor="let body of _bodies"
+          [value]="body"
+        >
+          {{body.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Коробка</mat-label>
+      <mat-select
+        (valueChange)="_formChanged($event, FORM_FIELDS.GEAR)"
+      >
+        <mat-option
+          *ngFor="let gear of _gears"
+          [value]="gear"
+        >
+          {{gear.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-label>Топливо</mat-label>
+      <mat-select
+        (valueChange)="_formChanged($event, FORM_FIELDS.FUEL)"
+      >
+        <mat-option
+          *ngFor="let fuel of _fuels"
+          [value]="fuel"
+        >
+          {{fuel.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-select
+        (valueChange)="_formChanged($event, FORM_FIELDS.YEAR_FROM)"
+        [value]="appForm.yearFrom"
+      >
+        <mat-option
+          *ngFor="let year of _years"
+          [value]="year"
+        >
+          {{year.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+
+  <div class="form-field">
+    <mat-form-field appearance="fill">
+      <mat-select
+        (valueChange)="_formChanged($event, FORM_FIELDS.YEAR_TO)"
+        [value]="appForm.yearTo"
+      >
+        <mat-option
+          *ngFor="let year of _years"
+          [value]="year"
+        >
+          {{year.text}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-spinner
+      *ngIf="_loadingMainParamsInProgress"
+      [diameter]="20"
+    ></mat-spinner>
+  </div>
+</div>

@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
-import { ElementValues, SelectValue, SiteElementsName, TableRow } from "./models";
+import { Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
+import { AppForm, ElementValues, SelectValue, SiteElementsName, TableRow } from "./models";
 import { MatSnackBar, } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 import { Observable, Subscriber } from "rxjs";
@@ -13,20 +13,12 @@ import { Observable, Subscriber } from "rxjs";
 export class AppComponent implements OnInit {
   @HostBinding("class.app") public hostClass: boolean = true;
 
-  private defaultURL: string = "https://bamper.by/"
+  static defaultURL: string = "https://bamper.by/"
 
-  public _markas: SelectValue[] = [];
-  public _pareParts: SelectValue[] = [];
-  public _models: SelectValue[] = [];
-  public _selectedMarka: SelectValue = {};
-  public _selectedParePart: SelectValue[] = [];
-  public _selectedModel: SelectValue = {};
   public _tableData: TableRow[] = [];
-
+  public _pareParts: SelectValue[] = [];
   public _loadingInProgress: boolean = false;
-  public _loadingModelsInProgress: boolean = false;
-  public _loadingMainParamsInProgress: boolean = true;
-
+  public _appForm: AppForm = {};
   public _viewerImages: HTMLImageElement[] = [];
 
   // public _filteredMarkas: Observable<SelectValue[]> = new Observable;
@@ -37,18 +29,20 @@ export class AppComponent implements OnInit {
   // public _modelsControl = new FormControl();
   // public _parePartsControl = new FormControl();
 
+  static getHtml(url: string): Promise<Document> {
+    return fetch(url)
+      .then((response: Response) => (response.text()))
+      .then((htmlAsString: string) => {
+        return new DOMParser().parseFromString(htmlAsString, "text/html");
+      });
+  }
+
   constructor(
     private snackBar: MatSnackBar,
   ) {
   }
 
   ngOnInit() {
-    this.getHtml(this.defaultURL)
-      .then((html: Document) => {
-        this.collectValues(html, SiteElementsName.MARKA, this._markas);
-        this.collectValues(html, SiteElementsName.ZAPCHAST, this._pareParts); //1728
-        this._loadingMainParamsInProgress = false;
-      });
 
     // this._filteredMarkas = this._markasControl.valueChanges.pipe(
     //   startWith(''),
@@ -71,56 +65,56 @@ export class AppComponent implements OnInit {
   //   return options.filter(item => item?.text?.toLowerCase().includes(text.toLowerCase()));
   // }
 
-  public getHtml(url: string): Promise<Document> {
-    return fetch(url)
-      .then((response: Response) => (response.text()))
-      .then((htmlAsString: string) => {
-        return new DOMParser().parseFromString(htmlAsString, "text/html");
-      });
-  }
-
-  public _markaChanged(event: SelectValue): void {
-    this._loadingModelsInProgress = true;
-    this._models = [];
-    this._selectedModel = {};
-    this._selectedMarka = event;
-
-    this.getHtml(this.defaultURL + `zchbu/marka_${event.value}/`)
-      .then((html: Document) => {
-        this.collectValues(html, SiteElementsName.MODEL, this._models);
-        this._loadingModelsInProgress = false;
-      });
-  }
-
-  public collectValues(html: Document, elementId: string, array: SelectValue[]): void {
-    html.getElementById(elementId)?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {
-      array.push({value: item.value, text: item.innerText});
-    });
-  }
-
   private prepareUrl(page: number, parePart: SelectValue): string {
-    // https://bamper.by/zchbu/zapchast_dver-zadnyaya-levaya/marka_alfaromeo/model_156/photo_Y/?ACTION=REWRITED3&FORM_DATA=zapchast_dver-zadnyaya-levaya%2Fmarka_alfaromeo%2Fmodel_156%2Fphoto_Y&PAGEN_1=2
 
-    let url: string = this.defaultURL + "zchbu/";
+    // %2Fkuzov_universal%2Fphoto_Y%2Fstore_Y%2Fenginevalue_1.9&more=Y&PAGEN_1=2
+
+    let url: string = AppComponent.defaultURL + "zchbu/";
 
     url += `zapchast_${parePart.value}/`;
-    if (this._selectedMarka?.value) {
-      url += `marka_${this._selectedMarka.value}/`;
+    if (this._appForm?.marka?.value) {
+      url += `marka_${this._appForm.marka.value}/`;
     }
-    if (this._selectedModel?.value) {
-      url += `model_${this._selectedModel.value}/`;
+    if (this._appForm?.model?.value) {
+      url += `model_${this._appForm.model.value}/`;
     }
-    url += "store_Y/?ACTION=REWRITED3&FORM_DATA=";
+    url += `god_${this._appForm?.yearFrom?.value}-${this._appForm?.yearTo?.value}/`;
+    if (this._appForm?.fuel?.value) {
+      url += `toplivo_${this._appForm.fuel.value}/`;
+    }
+    if (this._appForm?.gear?.value) {
+      url += `korobka_${this._appForm.gear.value}/`;
+    }
+    if (this._appForm?.body?.value) {
+      url += `kuzov_${this._appForm.body.value}/`;
+    }
+    // if (this._selectedEngine?.value) {
+    //   url += `enginevalue${this._selectedEngine.value}/`;
+    // }
+    url += "photo_Y/store_Y/?ACTION=REWRITED3&FORM_DATA=";
 
-    url += `zapchast_${parePart.value}${this._selectedMarka?.value || this._selectedModel?.value ? "%2F" : ""}`;
+    url += `zapchast_${parePart.value}`;
 
-    if (this._selectedMarka?.value) {
-      url += `marka_${this._selectedMarka.value}${this._selectedModel?.value ? "%2F" : ""}`;
+    if (this._appForm?.marka?.value) {
+      url += `%2Fmarka_${this._appForm.marka.value}`;
     }
-    if (this._selectedModel?.value) {
-      url += `model_${this._selectedModel.value}`;
+    if (this._appForm?.model?.value) {
+      url += `%2Fmodel_${this._appForm.model.value}`;
     }
-    url += `%2Fstore_Y&PAGEN_1=${page}`;
+    url += `%2Fgod_${this._appForm?.yearFrom?.value}-${this._appForm?.yearTo?.value}`;
+    if (this._appForm?.fuel?.value) {
+      url += `%2Ftoplivo_${this._appForm.fuel.value}`;
+    }
+    if (this._appForm?.gear?.value) {
+      url += `%2Fkorobka_${this._appForm.gear.value}`;
+    }
+    if (this._appForm?.body?.value) {
+      url += `%2Fkuzov_${this._appForm.body.value}`;
+    }
+    // if (this._selectedEngine?.value) {
+    //   url += `%2Fenginevalue${this._selectedEngine.value}/`;
+    // }
+    url += `%2Fphoto_Y%2Fstore_Y&more=Y&PAGEN_1=${page}`;
 
     return url;
   }
@@ -129,7 +123,7 @@ export class AppComponent implements OnInit {
     this._tableData = [];
     this._loadingInProgress = true;
 
-    (this._selectedParePart?.length ? this._selectedParePart : this._pareParts).forEach((parePart: SelectValue) => {
+    (this._appForm?.parePart?.length ? this._appForm.parePart : this._pareParts).forEach((parePart: SelectValue) => {
       parePart.value?.length && this.calculatePrices(
         {
           name: parePart.text as string,
@@ -177,6 +171,7 @@ export class AppComponent implements OnInit {
     }).subscribe((elements: Element[]) => {
       let nemElements: Element[] = [];
       let secondHandElements: Element[] = [];
+      let elementValues: ElementValues;
 
       elements?.forEach((element: Element) => {
         !!element.getElementsByClassName(SiteElementsName.NEW)?.length
@@ -185,7 +180,7 @@ export class AppComponent implements OnInit {
       })
 
       nemElements?.forEach((element: Element) => {
-        const elementValues: ElementValues = this.getElementValues(element);
+        elementValues = this.getElementValues(element);
 
         if (!parePartModel.newMinPrice || parePartModel.newMinPrice > elementValues.parePartPrice) {
           parePartModel.newMinPriceImages = elementValues.images;
@@ -201,7 +196,7 @@ export class AppComponent implements OnInit {
       });
 
       secondHandElements?.forEach((element: Element) => {
-        const elementValues: ElementValues = this.getElementValues(element);
+        elementValues = this.getElementValues(element);
 
         if (!parePartModel.secondHandMinPrice || parePartModel.secondHandMinPrice > elementValues.parePartPrice) {
           parePartModel.secondHandMinPriceImages = elementValues.images;
@@ -216,33 +211,51 @@ export class AppComponent implements OnInit {
           : parePartModel.secondHandAveragePrice + elementValues.parePartPrice;
       });
 
+      const secondHandAveragePrice: number = (parePartModel?.secondHandAveragePrice || 0) / secondHandElements?.length;
+      const newAveragePrice: number = (parePartModel.newAveragePrice || 0) / nemElements?.length;
+
       this._tableData = [ ...this._tableData, {
         ...parePartModel,
         position: this._tableData.length + 1,
-        secondHandAveragePrice: (parePartModel?.secondHandAveragePrice || 0) / secondHandElements?.length,
-        newAveragePrice: (parePartModel.newAveragePrice || 0) / nemElements?.length,
+        secondHandAveragePrice,
+        secondHandAveragePriceImages: this.getAveragePriceImages(secondHandElements, secondHandAveragePrice),
+        newAveragePrice,
+        newAveragePriceImages: this.getAveragePriceImages(nemElements, newAveragePrice),
       }];
 
-      if ((!!this._selectedParePart?.length
-        ? this._selectedParePart?.length
+      if ((!!this._appForm.parePart?.length
+        ? this._appForm.parePart.length
         : this._pareParts?.length) === this._tableData?.length) {
         this._loadingInProgress = false;
       }
     });
   }
 
-  private getElementValues(element: Element): ElementValues {
+  private getAveragePriceImages(elements: Element[], price: number): HTMLImageElement[] {
+    return price
+      ? this.getElementImages(elements?.reverse()?.find((element: Element) => (this.getElementPrice(element) <= price)) as Element)
+      : [];
+  }
+
+  private getElementPrice(element: Element): number {
     const value = element
       ?.getElementsByClassName(SiteElementsName.CURRENCY_LIST)
       ?.item(0)?.innerHTML
       ?.trim();
-    const images: HTMLImageElement[] = Array.from(element.getElementsByClassName("thumbnail no-margin")) as HTMLImageElement[];
-    images?.forEach((img: HTMLImageElement) => { img.src = this.defaultURL + img.src.substring(21) })
+    return Number(value?.substring(1, value.length - 1));
+  }
 
+  private getElementImages(element: Element): HTMLImageElement[] {
+    const images: HTMLImageElement[] = Array.from(element?.getElementsByClassName("thumbnail no-margin")) as HTMLImageElement[] || [];
+    images?.forEach((img: HTMLImageElement) => { img.src = img.src.replace("http://localhost:4200/", AppComponent.defaultURL) });
+    return images;
+  }
+
+  private getElementValues(element: Element): ElementValues {
     return {
-      parePartPrice: Number(value?.substring(1, value.length - 1)),
-      images
-    }
+      parePartPrice: this.getElementPrice(element),
+      images: this.getElementImages(element)
+    };
   }
 
   private loadElements(
@@ -251,7 +264,7 @@ export class AppComponent implements OnInit {
     page: number,
     parePart?: SelectValue
   ): void {
-    this.getHtml(this.prepareUrl(page, parePart as SelectValue))
+    AppComponent.getHtml(this.prepareUrl(page, parePart as SelectValue))
       .then((html: Document) => {
         Array.from(html.getElementsByClassName(SiteElementsName.ITEM_LIST))
           ?.filter((element: Element) => (!!element.getElementsByClassName(SiteElementsName.CURRENCY_LIST)?.length))
