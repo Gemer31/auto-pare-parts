@@ -40,6 +40,14 @@ export class AppFormComponent implements OnInit {
   @Output() public appFormChange: EventEmitter<AppForm> = new EventEmitter<AppForm>();
   @Output() public parePartsChange: EventEmitter<SelectValue[]> = new EventEmitter<SelectValue[]>();
 
+  // public _filteredMarkas: Observable<SelectValue[]> = new Observable;
+  // public _filteredModels: Observable<SelectValue[]> = new Observable;
+  // public _filteredPareParts: Observable<SelectValue[]> = new Observable;
+  //
+  // public _markasControl = new FormControl();
+  // public _modelsControl = new FormControl();
+  // public _parePartsControl = new FormControl();
+
   ngOnInit() {
     AppComponent.getHtml(AppComponent.defaultURL)
       .then((html: Document) => {
@@ -60,6 +68,27 @@ export class AppFormComponent implements OnInit {
         this._loadingMainParamsInProgress = false;
       });
   }
+
+  //
+  // public _displayFn(selectedValue: SelectValue): string {
+  //   return selectedValue && selectedValue.text ? selectedValue.text : '';
+  // }
+  //
+  // private _filter(text: string, options: SelectValue[]): SelectValue[] {
+  //   return options.filter(item => item?.text?.toLowerCase().includes(text.toLowerCase()));
+  // }
+
+
+  // this._filteredMarkas = this._markasControl.valueChanges.pipe(
+  //   startWith(''),
+  //   map(value => (typeof value === 'string' ? value : value.text)),
+  //   map(name => (name ? this._filter(name, this._markas) : this._markas.slice())),
+  // );
+  // this._filteredPareParts = this._parePartsControl.valueChanges.pipe(
+  //   startWith(''),
+  //   map(value => (typeof value === 'string' ? value : value.text)),
+  //   map(name => (name ? this._filter(name, this._pareParts) : this._pareParts.slice())),
+  // );
 
   private collectValues(html: Document, elementId: string, array: SelectValue[]): void {
     html.getElementById(elementId)?.querySelectorAll("option").forEach((item: HTMLOptionElement) => {

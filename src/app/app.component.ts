@@ -1,4 +1,4 @@
-import { Component, HostBinding, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, HostBinding, ViewEncapsulation } from '@angular/core';
 import { AppForm, ElementValues, SelectValue, SiteElementsName, TableRow } from "./models";
 import { MatSnackBar, } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
@@ -10,25 +10,10 @@ import { Observable, Subscriber } from "rxjs";
   styleUrls: ['./app.component.less'],
   encapsulation: ViewEncapsulation.None,
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   @HostBinding("class.app") public hostClass: boolean = true;
 
   static defaultURL: string = "https://bamper.by/"
-
-  public _tableData: TableRow[] = [];
-  public _pareParts: SelectValue[] = [];
-  public _loadingInProgress: boolean = false;
-  public _appForm: AppForm = {};
-  public _viewerImages: HTMLImageElement[] = [];
-
-  // public _filteredMarkas: Observable<SelectValue[]> = new Observable;
-  // public _filteredModels: Observable<SelectValue[]> = new Observable;
-  // public _filteredPareParts: Observable<SelectValue[]> = new Observable;
-  //
-  // public _markasControl = new FormControl();
-  // public _modelsControl = new FormControl();
-  // public _parePartsControl = new FormControl();
-
   static getHtml(url: string): Promise<Document> {
     return fetch(url)
       .then((response: Response) => (response.text()))
@@ -37,85 +22,35 @@ export class AppComponent implements OnInit {
       });
   }
 
-  constructor(
-    private snackBar: MatSnackBar,
-  ) {
-  }
+  public _tableData: TableRow[] = [];
+  public _pareParts: SelectValue[] = [];
+  public _loadingInProgress: boolean = false;
+  public _appForm: AppForm = {};
+  public _viewerImages: HTMLImageElement[] = [];
 
-  ngOnInit() {
-
-    // this._filteredMarkas = this._markasControl.valueChanges.pipe(
-    //   startWith(''),
-    //   map(value => (typeof value === 'string' ? value : value.text)),
-    //   map(name => (name ? this._filter(name, this._markas) : this._markas.slice())),
-    // );
-    // this._filteredPareParts = this._parePartsControl.valueChanges.pipe(
-    //   startWith(''),
-    //   map(value => (typeof value === 'string' ? value : value.text)),
-    //   map(name => (name ? this._filter(name, this._pareParts) : this._pareParts.slice())),
-    // );
-  }
-
-  //
-  // public _displayFn(selectedValue: SelectValue): string {
-  //   return selectedValue && selectedValue.text ? selectedValue.text : '';
-  // }
-  //
-  // private _filter(text: string, options: SelectValue[]): SelectValue[] {
-  //   return options.filter(item => item?.text?.toLowerCase().includes(text.toLowerCase()));
-  // }
+  constructor(private snackBar: MatSnackBar) {}
 
   private prepareUrl(page: number, parePart: SelectValue): string {
-
     // %2Fkuzov_universal%2Fphoto_Y%2Fstore_Y%2Fenginevalue_1.9&more=Y&PAGEN_1=2
-
     let url: string = AppComponent.defaultURL + "zchbu/";
-
     url += `zapchast_${parePart.value}/`;
-    if (this._appForm?.marka?.value) {
-      url += `marka_${this._appForm.marka.value}/`;
-    }
-    if (this._appForm?.model?.value) {
-      url += `model_${this._appForm.model.value}/`;
-    }
+    if (this._appForm?.marka?.value) {url += `marka_${this._appForm.marka.value}/`;}
+    if (this._appForm?.model?.value) {url += `model_${this._appForm.model.value}/`;}
     url += `god_${this._appForm?.yearFrom?.value}-${this._appForm?.yearTo?.value}/`;
-    if (this._appForm?.fuel?.value) {
-      url += `toplivo_${this._appForm.fuel.value}/`;
-    }
-    if (this._appForm?.gear?.value) {
-      url += `korobka_${this._appForm.gear.value}/`;
-    }
-    if (this._appForm?.body?.value) {
-      url += `kuzov_${this._appForm.body.value}/`;
-    }
-    // if (this._selectedEngine?.value) {
-    //   url += `enginevalue${this._selectedEngine.value}/`;
-    // }
+    if (this._appForm?.fuel?.value) {url += `toplivo_${this._appForm.fuel.value}/`;}
+    if (this._appForm?.gear?.value) {url += `korobka_${this._appForm.gear.value}/`;}
+    if (this._appForm?.body?.value) {url += `kuzov_${this._appForm.body.value}/`;}
+    // if (this._selectedEngine?.value) {url += `enginevalue${this._selectedEngine.value}/`;}
     url += "photo_Y/store_Y/?ACTION=REWRITED3&FORM_DATA=";
-
     url += `zapchast_${parePart.value}`;
-
-    if (this._appForm?.marka?.value) {
-      url += `%2Fmarka_${this._appForm.marka.value}`;
-    }
-    if (this._appForm?.model?.value) {
-      url += `%2Fmodel_${this._appForm.model.value}`;
-    }
+    if (this._appForm?.marka?.value) {url += `%2Fmarka_${this._appForm.marka.value}`;}
+    if (this._appForm?.model?.value) {url += `%2Fmodel_${this._appForm.model.value}`;}
     url += `%2Fgod_${this._appForm?.yearFrom?.value}-${this._appForm?.yearTo?.value}`;
-    if (this._appForm?.fuel?.value) {
-      url += `%2Ftoplivo_${this._appForm.fuel.value}`;
-    }
-    if (this._appForm?.gear?.value) {
-      url += `%2Fkorobka_${this._appForm.gear.value}`;
-    }
-    if (this._appForm?.body?.value) {
-      url += `%2Fkuzov_${this._appForm.body.value}`;
-    }
-    // if (this._selectedEngine?.value) {
-    //   url += `%2Fenginevalue${this._selectedEngine.value}/`;
-    // }
+    if (this._appForm?.fuel?.value) {url += `%2Ftoplivo_${this._appForm.fuel.value}`;}
+    if (this._appForm?.gear?.value) {url += `%2Fkorobka_${this._appForm.gear.value}`;}
+    if (this._appForm?.body?.value) {url += `%2Fkuzov_${this._appForm.body.value}`;}
+    // if (this._selectedEngine?.value) {url += `%2Fenginevalue${this._selectedEngine.value}/`;}
     url += `%2Fphoto_Y%2Fstore_Y&more=Y&PAGEN_1=${page}`;
-
     return url;
   }
 
@@ -140,15 +75,11 @@ export class AppComponent implements OnInit {
   }
 
   public _exportExcel(): void {
-    /* table id is passed over here */
     let element = document.getElementById('excel-table');
     const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
-
-    /* generate workbook and add the worksheet */
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
-    /* save to file */
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
     XLSX.writeFile(wb, "таблица_с_ценами.xlsx");
 
     this.snackBar.open("Таблица сохранена", "", {
