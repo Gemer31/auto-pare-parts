@@ -1,165 +1,223 @@
-<div class="form-row">
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Марка</mat-label>
-      <mat-select
-        (valueChange)="_formChanged($event, FORM_FIELDS.MARKA)"
-      >
-        <mat-option
-          *ngFor="let marka of _markas"
-          [value]="marka"
-        >
-          {{marka.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
+<div class="app-form_row">
+  <div class="app-form_fields">
+    <div class="app-form_row">
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-label>Марка</mat-label>
+          <mat-select
+            (valueChange)="_formChanged($event, FORM_FIELDS.MARKA)"
+          >
+            <mat-option
+              *ngFor="let marka of _markas"
+              [value]="marka"
+            >
+              {{marka.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-label>Модель</mat-label>
+          <mat-select
+            [disabled]="!_models?.length"
+            (valueChange)="_formChanged($event, FORM_FIELDS.MODEL)"
+          >
+            <mat-option
+              *ngFor="let model of _models"
+              [value]="model"
+            >
+              {{model.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingModelsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-label>Запчасти</mat-label>
+          <mat-select
+            multiple
+            (valueChange)="_formChanged($event, FORM_FIELDS.PARE_PART)"
+          >
+            <mat-option
+              *ngFor="let parePart of _pareParts"
+              [value]="parePart"
+            >
+              {{parePart.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-label>Кузов</mat-label>
+          <mat-select
+            (valueChange)="_formChanged($event, FORM_FIELDS.BODY)"
+          >
+            <mat-option
+              *ngFor="let body of _bodies"
+              [value]="body"
+            >
+              {{body.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+    </div>
+
+    <div class="app-form_row">
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-label>Коробка</mat-label>
+          <mat-select
+            (valueChange)="_formChanged($event, FORM_FIELDS.GEAR)"
+          >
+            <mat-option
+              *ngFor="let gear of _gears"
+              [value]="gear"
+            >
+              {{gear.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-label>Топливо</mat-label>
+          <mat-select
+            (valueChange)="_formChanged($event, FORM_FIELDS.FUEL)"
+          >
+            <mat-option
+              *ngFor="let fuel of _fuels"
+              [value]="fuel"
+            >
+              {{fuel.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-select
+            (valueChange)="_formChanged($event, FORM_FIELDS.YEAR_FROM)"
+            [value]="appForm.yearFrom"
+          >
+            <mat-option
+              *ngFor="let year of _years"
+              [value]="year"
+            >
+              {{year.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+
+      <div class="app-form_field">
+        <mat-form-field appearance="fill">
+          <mat-select
+            (valueChange)="_formChanged($event, FORM_FIELDS.YEAR_TO)"
+            [value]="appForm.yearTo"
+          >
+            <mat-option
+              *ngFor="let year of _years"
+              [value]="year"
+            >
+              {{year.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-spinner
+          *ngIf="_loadingMainParamsInProgress"
+          [diameter]="20"
+        ></mat-spinner>
+      </div>
+    </div>
   </div>
 
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Модель</mat-label>
-      <mat-select
-        [disabled]="!_models?.length"
-        (valueChange)="_formChanged($event, FORM_FIELDS.MODEL)"
-      >
-        <mat-option
-          *ngFor="let model of _models"
-          [value]="model"
-        >
-          {{model.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingModelsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
-
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Запчасти</mat-label>
-      <mat-select
-        multiple
-        (valueChange)="_formChanged($event, FORM_FIELDS.PARE_PART)"
-      >
-        <mat-option
-          *ngFor="let parePart of _pareParts"
-          [value]="parePart"
-        >
-          {{parePart.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
-
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Кузов</mat-label>
-      <mat-select
-        (valueChange)="_formChanged($event, FORM_FIELDS.BODY)"
-      >
-        <mat-option
-          *ngFor="let body of _bodies"
-          [value]="body"
-        >
-          {{body.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
+  <div class="app-form_buttons">
+    <button
+      mat-flat-button
+      color="warn"
+      (click)="calculateClick.emit()"
+    >Рассчитать
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="exportClick.emit()"
+    >Экспорт Excel
+    </button>
   </div>
 </div>
 
-<div class="form-row">
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Коробка</mat-label>
-      <mat-select
-        (valueChange)="_formChanged($event, FORM_FIELDS.GEAR)"
-      >
-        <mat-option
-          *ngFor="let gear of _gears"
-          [value]="gear"
-        >
-          {{gear.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
 
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-label>Топливо</mat-label>
-      <mat-select
-        (valueChange)="_formChanged($event, FORM_FIELDS.FUEL)"
-      >
-        <mat-option
-          *ngFor="let fuel of _fuels"
-          [value]="fuel"
-        >
-          {{fuel.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
+<!--<div class="app-form">-->
+<!--  <form>-->
+<!--    <mat-form-field-->
+<!--      appearance="fill">-->
+<!--      <mat-label>Марка</mat-label>-->
+<!--      <input-->
+<!--        type="text"-->
+<!--        matInput-->
+<!--        [formControl]="_markasControl"-->
+<!--        [matAutocomplete]="auto"-->
+<!--      >-->
+<!--      <mat-autocomplete #auto="matAutocomplete" [displayWith]="_displayFn">-->
+<!--        <mat-option *ngFor="let marka of _filteredMarkas | async" [value]="marka">-->
+<!--          {{marka.text}}-->
+<!--        </mat-option>-->
+<!--      </mat-autocomplete>-->
+<!--    </mat-form-field>-->
 
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-select
-        (valueChange)="_formChanged($event, FORM_FIELDS.YEAR_FROM)"
-        [value]="appForm.yearFrom"
-      >
-        <mat-option
-          *ngFor="let year of _years"
-          [value]="year"
-        >
-          {{year.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
-
-  <div class="form-field">
-    <mat-form-field appearance="fill">
-      <mat-select
-        (valueChange)="_formChanged($event, FORM_FIELDS.YEAR_TO)"
-        [value]="appForm.yearTo"
-      >
-        <mat-option
-          *ngFor="let year of _years"
-          [value]="year"
-        >
-          {{year.text}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-spinner
-      *ngIf="_loadingMainParamsInProgress"
-      [diameter]="20"
-    ></mat-spinner>
-  </div>
-</div>
+<!--    <mat-form-field-->
+<!--      appearance="fill">-->
+<!--      <mat-label>Запчасти</mat-label>-->
+<!--      <input-->
+<!--        type="text"-->
+<!--        matInput-->
+<!--        [formControl]="_parePartsControl"-->
+<!--        [matAutocomplete]="auto"-->
+<!--      >-->
+<!--      <mat-autocomplete #auto="matAutocomplete" [displayWith]="_displayFn">-->
+<!--        <mat-select multiple>-->
+<!--          <mat-option *ngFor="let parePart of _filteredPareParts | async" [value]="parePart">-->
+<!--            {{parePart.text}}-->
+<!--          </mat-option>-->
+<!--        </mat-select>-->
+<!--      </mat-autocomplete>-->
+<!--    </mat-form-field>-->
+<!--  </form>-->
+<!--</div>-->

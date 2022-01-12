@@ -20,8 +20,11 @@
     "@angular/platform-browser": "~13.1.0",
     "@angular/platform-browser-dynamic": "~13.1.0",
     "@angular/router": "~13.1.0",
+    "@progress/kendo-file-saver": "^1.1.0",
+    "exceljs": "^4.3.0",
     "file-saver": "^2.0.5",
     "rxjs": "~7.4.0",
+    "ts-xlsx-export": "^1.0.1",
     "tslib": "^2.3.0",
     "xlsx": "^0.17.4",
     "zone.js": "~0.11.4"

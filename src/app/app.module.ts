@@ -32,7 +32,6 @@ import { AppFormModule } from "./components/form/app-form.module";
 
     MatCommonModule,
     MatTableModule,
-    MatButtonModule,
     MatFormFieldModule,
     MatProgressBarModule,
     MatAutocompleteModule,

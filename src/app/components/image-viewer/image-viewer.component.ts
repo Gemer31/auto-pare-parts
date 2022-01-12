@@ -9,6 +9,7 @@ import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angu
 export class ImageViewerComponent {
 
   @Input() images: HTMLImageElement[] = [];
+  @Input() title: string = "";
 
   @Output() closeClick: EventEmitter<void> = new EventEmitter<void>();
 

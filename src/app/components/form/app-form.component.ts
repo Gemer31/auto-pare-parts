@@ -39,6 +39,8 @@ export class AppFormComponent implements OnInit {
 
   @Output() public appFormChange: EventEmitter<AppForm> = new EventEmitter<AppForm>();
   @Output() public parePartsChange: EventEmitter<SelectValue[]> = new EventEmitter<SelectValue[]>();
+  @Output() public calculateClick: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public exportClick: EventEmitter<void> = new EventEmitter<void>();
 
   // public _filteredMarkas: Observable<SelectValue[]> = new Observable;
   // public _filteredModels: Observable<SelectValue[]> = new Observable;

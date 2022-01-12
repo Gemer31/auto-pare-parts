@@ -3,6 +3,8 @@ import { AppForm, ElementValues, SelectValue, SiteElementsName, TableRow } from 
 import { MatSnackBar, } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 import { Observable, Subscriber } from "rxjs";
+import { Alignment, Cell, CellValue, Column, Font, Protection, Workbook } from "exceljs";
+import * as fs from 'file-saver';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +16,7 @@ export class AppComponent {
   @HostBinding("class.app") public hostClass: boolean = true;
 
   static defaultURL: string = "https://bamper.by/"
+
   static getHtml(url: string): Promise<Document> {
     return fetch(url)
       .then((response: Response) => (response.text()))
@@ -27,6 +30,7 @@ export class AppComponent {
   public _loadingInProgress: boolean = false;
   public _appForm: AppForm = {};
   public _viewerImages: HTMLImageElement[] = [];
+  public _viewerTitle: string = "";
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -75,21 +79,90 @@ export class AppComponent {
   }
 
   public _exportExcel(): void {
-    let element = document.getElementById('excel-table');
-    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const workBook = new Workbook();
+    let worksheet = workBook.addWorksheet('Car Data');
+    worksheet.columns = [
+      {
+        header: 'No.',
+        key: 'No',
+        width: 10,
+      },
+      {
+        header: 'Запчасть',
+        key: 'parePart',
+        width: 32,
+      },
+      {
+        header: 'Минимальная цена',
+        key: 'minPrice',
+        width: 20,
+        values: ["1", "2"]
+      },
+      {
+        header: 'Средняя цена',
+        key: 'averagePrice',
+        width: 20,
+      },
+      {
+        header: 'Максимальная цена',
+        key: 'maxPrice',
+        width: 20,
+      },
+    ];
 
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-    XLSX.writeFile(wb, "таблица_с_ценами.xlsx");
+    worksheet.spliceColumns(3, 2);
+    // {
+    //   numFmt?: string;
+    //   font?: Partial<Font>;
+    //   protection?: Partial<Protection>;
+    //   values: ReadonlyArray<CellValue>,
+    //   width: 20,
+    //   outlineLevel: number,
+    //   alignment: {
+    //     horizontal: 'left' | 'center' | 'right' | 'fill' | 'justify' | 'centerContinuous' | 'distributed';
+    //     vertical: 'top' | 'middle' | 'bottom' | 'distributed' | 'justify';
+    //     wrapText: boolean;
+    //     shrinkToFit: boolean;
+    //     indent: number;
+    //     readingOrder: 'rtl' | 'ltr';
+    //     textRotation: number | 'vertical';
+    //   }
+    // }
+
+
+    // const header = ["No.", "Запчасть", "Минимальная цена", "Средняя цена", "Максимальная цена"]
+    // let headerRow = worksheet.addRow(header);
+    // headerRow.eachCell((cell: Cell) => {
+    //   cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
+    // });
+
+    this._tableData.forEach((row: TableRow) => {
+      worksheet.addRow([
+        row.position,
+        row.name,
+        row.secondHandMinPrice,
+        row.newMinPrice,
+        row.secondHandAveragePrice,
+        // row.newAveragePrice,
+        // row.secondHandMaxPrice,
+        // row.newMaxPrice,
+      ])
+    })
+
+    workBook.xlsx.writeBuffer().then((data) => {
+      let blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      fs.saveAs(blob, 'Запчасти.xlsx');
+    });
 
     this.snackBar.open("Таблица сохранена", "", {
-      horizontalPosition: "end",
-      verticalPosition: "top",
+      horizontalPosition: "center",
+      verticalPosition: "bottom",
       duration: 3000,
     });
   }
 
-  public _openImageViewer(images: HTMLImageElement[]): void {
+  public _openImageViewer(images: HTMLImageElement[], title: string): void {
+    this._viewerTitle = title;
     this._viewerImages = images;
   }
 
@@ -178,7 +251,7 @@ export class AppComponent {
 
   private getElementImages(element: Element): HTMLImageElement[] {
     const images: HTMLImageElement[] = Array.from(element?.getElementsByClassName("thumbnail no-margin")) as HTMLImageElement[] || [];
-    images?.forEach((img: HTMLImageElement) => { img.src = img.src.replace("http://localhost:4200/", AppComponent.defaultURL) });
+    images?.forEach((img: HTMLImageElement) => { img.src = img.src.replace(window?.location?.href, AppComponent.defaultURL) });
     return images;
   }
 

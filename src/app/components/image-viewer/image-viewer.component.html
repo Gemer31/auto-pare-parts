@@ -1,5 +1,6 @@
 <div class="image-viewer">
-    <mat-icon class="image-viewer_buttons __close" (click)="closeClick.emit()">close</mat-icon>
+  <div class="image-viewer_title">{{title}}</div>
+  <mat-icon class="image-viewer_buttons __close" (click)="closeClick.emit()">close</mat-icon>
 
   <div class="image-viewer_current">
     <mat-icon class="image-viewer_buttons __move __previous" (click)="_previous()">arrow_back_ios</mat-icon>

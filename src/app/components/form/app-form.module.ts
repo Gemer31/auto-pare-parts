@@ -28,6 +28,7 @@ import { MatIconModule } from "@angular/material/icon";
     MatProgressSpinnerModule,
     MatOptionModule,
     MatSelectModule,
+    MatButtonModule,
   ],
   exports: [
     AppFormComponent

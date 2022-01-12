@@ -1,62 +1,10 @@
-<div class="app-header">
-  <app-form
-    class="app-header_form"
-    [(appForm)]="_appForm"
-    (parePartsChange)="_pareParts = $event"
-  ></app-form>
-
-  <div class="app-header_buttons">
-    <button
-      mat-flat-button
-      color="warn"
-      (click)="_calculateClicked()"
-    >Рассчитать</button>
-    <button
-      mat-flat-button
-      color="primary"
-      (click)="_exportExcel()"
-    >Экспорт Excel</button>
-  </div>
-</div>
-
-
-<!--<div class="app-form">-->
-<!--  <form>-->
-<!--    <mat-form-field-->
-<!--      appearance="fill">-->
-<!--      <mat-label>Марка</mat-label>-->
-<!--      <input-->
-<!--        type="text"-->
-<!--        matInput-->
-<!--        [formControl]="_markasControl"-->
-<!--        [matAutocomplete]="auto"-->
-<!--      >-->
-<!--      <mat-autocomplete #auto="matAutocomplete" [displayWith]="_displayFn">-->
-<!--        <mat-option *ngFor="let marka of _filteredMarkas | async" [value]="marka">-->
-<!--          {{marka.text}}-->
-<!--        </mat-option>-->
-<!--      </mat-autocomplete>-->
-<!--    </mat-form-field>-->
-
-<!--    <mat-form-field-->
-<!--      appearance="fill">-->
-<!--      <mat-label>Запчасти</mat-label>-->
-<!--      <input-->
-<!--        type="text"-->
-<!--        matInput-->
-<!--        [formControl]="_parePartsControl"-->
-<!--        [matAutocomplete]="auto"-->
-<!--      >-->
-<!--      <mat-autocomplete #auto="matAutocomplete" [displayWith]="_displayFn">-->
-<!--        <mat-select multiple>-->
-<!--          <mat-option *ngFor="let parePart of _filteredPareParts | async" [value]="parePart">-->
-<!--            {{parePart.text}}-->
-<!--          </mat-option>-->
-<!--        </mat-select>-->
-<!--      </mat-autocomplete>-->
-<!--    </mat-form-field>-->
-<!--  </form>-->
-<!--</div>-->
+<app-form
+  class="app-header_form"
+  [(appForm)]="_appForm"
+  (parePartsChange)="_pareParts = $event"
+  (calculateClick)="_calculateClicked()"
+  (exportClick)="_exportExcel()"
+></app-form>
 
 <table
   mat-table
@@ -129,7 +77,7 @@
           matBadge="{{element.secondHandMinPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.secondHandMinPriceImages)"
+          (click)="_openImageViewer(element.secondHandMinPriceImages, element.name + '(б/у) с минимальной ценой')"
         >image_search
         </mat-icon>
       </div>
@@ -151,7 +99,7 @@
           matBadge="{{element.newMinPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.newMinPriceImages)"
+          (click)="_openImageViewer(element.newMinPriceImages, element.name + '(новая) с минимальной ценой')"
         >image_search
         </mat-icon>
       </div>
@@ -173,7 +121,7 @@
           matBadge="{{element.secondHandAveragePriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.secondHandAveragePriceImages)"
+          (click)="_openImageViewer(element.secondHandAveragePriceImages, element.name + '(б/у) со средней ценой')"
         >image_search
         </mat-icon>
       </div>
@@ -195,7 +143,7 @@
           matBadge="{{element.newAveragePriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.newAveragePriceImages)"
+          (click)="_openImageViewer(element.newAveragePriceImages, element.name + '(новая) со средней ценой')"
         >image_search
         </mat-icon>
       </div>
@@ -217,7 +165,7 @@
           matBadge="{{element.secondHandMaxPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.secondHandMaxPriceImages)"
+          (click)="_openImageViewer(element.secondHandMaxPriceImages, element.name + '(б/у) с максимальной ценой')"
         >image_search
         </mat-icon>
       </div>
@@ -239,7 +187,7 @@
           matBadge="{{element.newMaxPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.newMaxPriceImages)"
+          (click)="_openImageViewer(element.newMaxPriceImages, element.name + '(новая) с максимальной ценой')"
         >image_search
         </mat-icon>
       </div>
@@ -262,5 +210,6 @@
   *ngIf="_viewerImages?.length"
   class="app-viewer"
   [images]="_viewerImages"
+  [title]="_viewerTitle"
   (closeClick)="_closeImageViewer()"
 ></image-viewer>

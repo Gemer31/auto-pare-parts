@@ -1,11 +1,21 @@
-.form {
-  width: 80%;
+.app-form {
+  &_fields {
+    width: 80%;
+  }
 
-  &-row {
+  &_buttons {
+    width: 20%;
+
+    .mat-flat-button {
+      height: 50%;
+    }
+  }
+
+  &_row {
     display: flex;
   }
 
-  &-field {
+  &_field {
     display: flex;
     align-items: center;
     justify-content: end;
