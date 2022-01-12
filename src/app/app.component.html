@@ -6,9 +6,13 @@
   (exportClick)="_exportExcel()"
 ></app-form>
 
+<div
+  *ngIf="_tableName?.length"
+  class="app-table_name"
+>{{_tableName}}</div>
+
 <table
   mat-table
-  id="excel-table"
   [dataSource]="_tableData"
   class="mat-elevation-z8 app-table">
 
@@ -70,16 +74,15 @@
     </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
-        {{(element.secondHandMinPrice ? (element.secondHandMinPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+        {{element.secondHandMinPriceAsString}}
 
         <mat-icon
           *ngIf="element.secondHandMinPriceImages?.length"
           matBadge="{{element.secondHandMinPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.secondHandMinPriceImages, element.name + '(б/у) с минимальной ценой')"
-        >image_search
-        </mat-icon>
+          (click)="_openImageViewer(element.secondHandMinPriceImages, element.name + '(б/у) с минимальной ценой (' + element.secondHandMinPriceAsString + ')')"
+        >image_search</mat-icon>
       </div>
     </td>
   </ng-container>
@@ -92,16 +95,15 @@
     </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
-        {{(element.newMinPrice ? (element.newMinPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+        {{element.newMinPriceAsString}}
 
         <mat-icon
           *ngIf="element.newMinPriceImages?.length"
           matBadge="{{element.newMinPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.newMinPriceImages, element.name + '(новая) с минимальной ценой')"
-        >image_search
-        </mat-icon>
+          (click)="_openImageViewer(element.newMinPriceImages, element.name + '(новая) с минимальной ценой (' + element.newMinPriceAsString + ')')"
+        >image_search</mat-icon>
       </div>
     </td>
   </ng-container>
@@ -114,16 +116,15 @@
     </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
-        {{(element.secondHandAveragePrice ? (element.secondHandAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+        {{element.secondHandAveragePriceAsString}}
 
         <mat-icon
           *ngIf="element.secondHandAveragePriceImages?.length"
           matBadge="{{element.secondHandAveragePriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.secondHandAveragePriceImages, element.name + '(б/у) со средней ценой')"
-        >image_search
-        </mat-icon>
+          (click)="_openImageViewer(element.secondHandAveragePriceImages, element.name + '(б/у) со средней ценой (' + element.secondHandAveragePriceAsString + ')')"
+        >image_search</mat-icon>
       </div>
     </td>
   </ng-container>
@@ -136,16 +137,15 @@
     </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
-        {{(element.newAveragePrice ? (element.newAveragePrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+        {{element.newAveragePriceAsString}}
 
         <mat-icon
           *ngIf="element.newAveragePriceImages?.length"
           matBadge="{{element.newAveragePriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.newAveragePriceImages, element.name + '(новая) со средней ценой')"
-        >image_search
-        </mat-icon>
+          (click)="_openImageViewer(element.newAveragePriceImages, element.name + '(новая) со средней ценой (' + element.newAveragePriceAsString + ')')"
+        >image_search</mat-icon>
       </div>
     </td>
   </ng-container>
@@ -158,16 +158,15 @@
     </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
-        {{(element.secondHandMaxPrice ? (element.secondHandMaxPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+        {{element.secondHandMaxPriceAsString}}
 
         <mat-icon
           *ngIf="element.secondHandMaxPriceImages?.length"
           matBadge="{{element.secondHandMaxPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.secondHandMaxPriceImages, element.name + '(б/у) с максимальной ценой')"
-        >image_search
-        </mat-icon>
+          (click)="_openImageViewer(element.secondHandMaxPriceImages, element.name + '(б/у) с максимальной ценой (' + element.secondHandMaxPriceAsString + ')')"
+        >image_search</mat-icon>
       </div>
     </td>
   </ng-container>
@@ -180,16 +179,15 @@
     </th>
     <td mat-cell *matCellDef="let element">
       <div class="app-table-cell">
-        {{(element.newMaxPrice ? (element.newMaxPrice | currency: "USD": "symbol": "1.2-2") : "Не найдено")}}
+        {{element.newMaxPriceAsString}}
 
         <mat-icon
           *ngIf="element.newMaxPriceImages?.length"
           matBadge="{{element.newMaxPriceImages.length}}"
           matBadgePosition="before"
           matBadgeColor="warn"
-          (click)="_openImageViewer(element.newMaxPriceImages, element.name + '(новая) с максимальной ценой')"
-        >image_search
-        </mat-icon>
+          (click)="_openImageViewer(element.newMaxPriceImages, element.name + '(новая) с максимальной ценой (' + element.newMaxPriceAsString + ')')"
+        >image_search</mat-icon>
       </div>
     </td>
   </ng-container>

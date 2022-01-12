@@ -2,16 +2,22 @@ export interface TableRow {
   name?: string;
   position?: number;
   secondHandMinPrice?: number;
+  secondHandMinPriceAsString?: string;
   secondHandMinPriceImages?: HTMLImageElement[];
   secondHandAveragePrice?: number;
+  secondHandAveragePriceAsString?: string;
   secondHandAveragePriceImages?: HTMLImageElement[];
   secondHandMaxPrice?: number;
+  secondHandMaxPriceAsString?: string;
   secondHandMaxPriceImages?: HTMLImageElement[];
   newMinPrice?: number;
+  newMinPriceAsString?: string;
   newMinPriceImages?: HTMLImageElement[];
   newAveragePrice?: number;
+  newAveragePriceAsString?: string;
   newAveragePriceImages?: HTMLImageElement[];
   newMaxPrice?: number;
+  newMaxPriceAsString?: string;
   newMaxPriceImages?: HTMLImageElement[];
 }
 

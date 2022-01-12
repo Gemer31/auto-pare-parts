@@ -1,10 +1,10 @@
 import { Component, HostBinding, ViewEncapsulation } from '@angular/core';
 import { AppForm, ElementValues, SelectValue, SiteElementsName, TableRow } from "./models";
 import { MatSnackBar, } from '@angular/material/snack-bar';
-import * as XLSX from 'xlsx';
 import { Observable, Subscriber } from "rxjs";
-import { Alignment, Cell, CellValue, Column, Font, Protection, Workbook } from "exceljs";
+import { Workbook } from "exceljs";
 import * as fs from 'file-saver';
+import { CurrencyPipe } from "@angular/common";
 
 @Component({
   selector: 'app-root',
@@ -31,8 +31,12 @@ export class AppComponent {
   public _appForm: AppForm = {};
   public _viewerImages: HTMLImageElement[] = [];
   public _viewerTitle: string = "";
+  public _tableName: string = "";
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private currency: CurrencyPipe,
+    private snackBar: MatSnackBar
+  ) {}
 
   private prepareUrl(page: number, parePart: SelectValue): string {
     // %2Fkuzov_universal%2Fphoto_Y%2Fstore_Y%2Fenginevalue_1.9&more=Y&PAGEN_1=2
@@ -59,26 +63,50 @@ export class AppComponent {
   }
 
   public _calculateClicked(): void {
-    this._tableData = [];
-    this._loadingInProgress = true;
+    if (this._appForm.marka && this._appForm.model && this._appForm.yearTo && this._appForm.yearFrom) {
+      this._tableName = `${this._appForm.marka.text} / ${this._appForm.model.text} / c ${this._appForm.yearFrom.text} по ${this._appForm.yearTo.text} `
+        + `${this._appForm.body ? "/ " + this._appForm.body?.text : " "} `
+        + `${this._appForm.gear ? "/ " + this._appForm.gear?.text : " "} `
+        + `${this._appForm.engine ? "/ " + this._appForm.engine?.text : " "} `
+        + `${this._appForm.fuel ? "/ " + this._appForm.fuel?.text : " "} `;
+      this._tableName.trim();
+      this._tableData = [];
+      this._loadingInProgress = true;
 
-    (this._appForm?.parePart?.length ? this._appForm.parePart : this._pareParts).forEach((parePart: SelectValue) => {
-      parePart.value?.length && this.calculatePrices(
-        {
-          name: parePart.text as string,
-          secondHandMinPrice: 0,
-          secondHandAveragePrice: 0,
-          secondHandMaxPrice: 0,
-          newMinPrice: 0,
-          newAveragePrice: 0,
-          newMaxPrice: 0
-        },
-        parePart
-      );
-    })
+      (this._appForm?.parePart?.length ? this._appForm.parePart : this._pareParts).forEach((parePart: SelectValue) => {
+        parePart.value?.length && this.calculatePrices(
+          {
+            name: parePart.text as string,
+            secondHandMinPrice: 0,
+            secondHandAveragePrice: 0,
+            secondHandMaxPrice: 0,
+            newMinPrice: 0,
+            newAveragePrice: 0,
+            newMaxPrice: 0
+          },
+          parePart
+        );
+      })
+    } else {
+      this.snackBar.open("Заполните данные", "", {
+        horizontalPosition: "center",
+        verticalPosition: "bottom",
+        duration: 3000,
+      });
+    }
   }
 
   public _exportExcel(): void {
+    if (!this._tableData?.length) {
+      this.snackBar.open("Таблица пустая", "", {
+        horizontalPosition: "center",
+        verticalPosition: "bottom",
+        duration: 3000,
+      });
+
+      return;
+    }
+
     const workBook = new Workbook();
     let worksheet = workBook.addWorksheet('Car Data');
     worksheet.columns = [
@@ -93,59 +121,51 @@ export class AppComponent {
         width: 32,
       },
       {
-        header: 'Минимальная цена',
+        header: 'Минимальная цена, $',
         key: 'minPrice',
-        width: 20,
-        values: ["1", "2"]
+        width: 15,
+        alignment: {
+          horizontal: 'center'
+        }
       },
+      {},
       {
-        header: 'Средняя цена',
+        header: 'Средняя цена, $',
         key: 'averagePrice',
-        width: 20,
+        width: 15,
+        alignment: {
+          horizontal: 'center'
+        }
       },
+      {},
       {
-        header: 'Максимальная цена',
+        header: 'Максимальная цена, $',
         key: 'maxPrice',
-        width: 20,
-      },
-    ];
-
-    worksheet.spliceColumns(3, 2);
-    // {
-    //   numFmt?: string;
-    //   font?: Partial<Font>;
-    //   protection?: Partial<Protection>;
-    //   values: ReadonlyArray<CellValue>,
-    //   width: 20,
-    //   outlineLevel: number,
-    //   alignment: {
-    //     horizontal: 'left' | 'center' | 'right' | 'fill' | 'justify' | 'centerContinuous' | 'distributed';
-    //     vertical: 'top' | 'middle' | 'bottom' | 'distributed' | 'justify';
-    //     wrapText: boolean;
-    //     shrinkToFit: boolean;
-    //     indent: number;
-    //     readingOrder: 'rtl' | 'ltr';
-    //     textRotation: number | 'vertical';
-    //   }
-    // }
+        width: 15,
+        alignment: {
+          horizontal: 'center'
+        }
+      }];
 
 
-    // const header = ["No.", "Запчасть", "Минимальная цена", "Средняя цена", "Максимальная цена"]
-    // let headerRow = worksheet.addRow(header);
-    // headerRow.eachCell((cell: Cell) => {
-    //   cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
-    // });
-
-    this._tableData.forEach((row: TableRow) => {
+    this._tableData?.forEach((row: TableRow) => {
+      if (
+        (row.newMaxPrice !== 0 && row.newMaxPriceAsString !== "Не найдено") ||
+        (row.secondHandMaxPrice !== 0 && row.secondHandMaxPriceAsString !== "Не найдено") ||
+        (row.newAveragePrice !== 0 && row.newAveragePriceAsString !== "Не найдено") ||
+        (row.secondHandAveragePrice !== 0 && row.secondHandAveragePriceAsString !== "Не найдено") ||
+        (row.newMinPrice !== 0 && row.newMinPriceAsString !== "Не найдено") ||
+        (row.secondHandMinPrice !== 0 && row.newMinPriceAsString !== "Не найдено")
+      )
       worksheet.addRow([
         row.position,
         row.name,
-        row.secondHandMinPrice,
-        row.newMinPrice,
-        row.secondHandAveragePrice,
-        // row.newAveragePrice,
-        // row.secondHandMaxPrice,
-        // row.newMaxPrice,
+        row.secondHandMinPrice || 0,
+        row.newMinPrice || 0,
+        row.secondHandAveragePrice || 0,
+        row.newAveragePrice || 0,
+        row.secondHandMaxPrice || 0,
+        row.newMaxPrice || 0,
       ])
     })
 
@@ -221,10 +241,16 @@ export class AppComponent {
       this._tableData = [ ...this._tableData, {
         ...parePartModel,
         position: this._tableData.length + 1,
+        newMinPriceAsString: this.priceToString(parePartModel.newMinPrice || 0),
+        secondHandMinPriceAsString: this.priceToString(parePartModel.secondHandMinPrice || 0),
         secondHandAveragePrice,
+        secondHandAveragePriceAsString: this.priceToString(secondHandAveragePrice),
         secondHandAveragePriceImages: this.getAveragePriceImages(secondHandElements, secondHandAveragePrice),
         newAveragePrice,
+        newAveragePriceAsString: this.priceToString(parePartModel.newAveragePrice || 0),
         newAveragePriceImages: this.getAveragePriceImages(nemElements, newAveragePrice),
+        secondHandMaxPriceAsString: this.priceToString(parePartModel.secondHandMaxPrice || 0),
+        newMaxPriceAsString: this.priceToString(parePartModel.newMaxPrice || 0)
       }];
 
       if ((!!this._appForm.parePart?.length
@@ -233,6 +259,10 @@ export class AppComponent {
         this._loadingInProgress = false;
       }
     });
+  }
+
+  private priceToString(price: number): string {
+    return price && price > 0 ? this.currency.transform(price, "USD", "symbol", "1.2-2") as string : "Не найдено";
   }
 
   private getAveragePriceImages(elements: Element[], price: number): HTMLImageElement[] {
