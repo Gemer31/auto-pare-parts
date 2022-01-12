@@ -60,6 +60,8 @@ export class AppFormComponent implements OnInit {
         this.collectValues(html, SiteElementsName.BODY, this._bodies);
         this.collectValues(html, SiteElementsName.GEAR, this._gears);
 
+        this.sortPareParts();
+
         this.parePartsChange.emit(this._pareParts);
         this.appForm = {
           ...this.appForm,
@@ -69,6 +71,32 @@ export class AppFormComponent implements OnInit {
 
         this._loadingMainParamsInProgress = false;
       });
+  }
+
+  private sortPareParts(): void {
+    console.log(this._pareParts.length);
+    this._pareParts = this._pareParts?.filter((item) => {
+      const searchText: string = item.text?.toLowerCase() as string;
+      return !searchText?.includes("болт")
+        && !searchText?.includes("гайка")
+        && !searchText?.includes("комплект")
+        && !searchText?.includes("ящик")
+        && !searchText?.includes("щетки")
+        && !searchText?.includes("часы")
+        && !searchText?.includes("ноускат")
+        && !searchText?.includes("платформа")
+        && !searchText?.includes("подшипник")
+        && !searchText?.includes("поручень")
+        && !searchText?.includes("прочая запчасть")
+        && !searchText?.includes("прочие")
+        && !searchText?.includes("домкрат")
+        && !searchText?.includes("клемма")
+        && !searchText?.includes("клеммник")
+        && !searchText?.includes("клипса")
+        && !searchText?.includes("балонный")
+        && !searchText?.includes("прокладка")
+    })
+    console.log(this._pareParts.length);
   }
 
   //

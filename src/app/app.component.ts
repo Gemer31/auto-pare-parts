@@ -36,27 +36,48 @@ export class AppComponent {
   constructor(
     private currency: CurrencyPipe,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   private prepareUrl(page: number, parePart: SelectValue): string {
     // %2Fkuzov_universal%2Fphoto_Y%2Fstore_Y%2Fenginevalue_1.9&more=Y&PAGEN_1=2
     let url: string = AppComponent.defaultURL + "zchbu/";
     url += `zapchast_${parePart.value}/`;
-    if (this._appForm?.marka?.value) {url += `marka_${this._appForm.marka.value}/`;}
-    if (this._appForm?.model?.value) {url += `model_${this._appForm.model.value}/`;}
+    if (this._appForm?.marka?.value) {
+      url += `marka_${this._appForm.marka.value}/`;
+    }
+    if (this._appForm?.model?.value) {
+      url += `model_${this._appForm.model.value}/`;
+    }
     url += `god_${this._appForm?.yearFrom?.value}-${this._appForm?.yearTo?.value}/`;
-    if (this._appForm?.fuel?.value) {url += `toplivo_${this._appForm.fuel.value}/`;}
-    if (this._appForm?.gear?.value) {url += `korobka_${this._appForm.gear.value}/`;}
-    if (this._appForm?.body?.value) {url += `kuzov_${this._appForm.body.value}/`;}
+    if (this._appForm?.fuel?.value) {
+      url += `toplivo_${this._appForm.fuel.value}/`;
+    }
+    if (this._appForm?.gear?.value) {
+      url += `korobka_${this._appForm.gear.value}/`;
+    }
+    if (this._appForm?.body?.value) {
+      url += `kuzov_${this._appForm.body.value}/`;
+    }
     // if (this._selectedEngine?.value) {url += `enginevalue${this._selectedEngine.value}/`;}
     url += "photo_Y/store_Y/?ACTION=REWRITED3&FORM_DATA=";
     url += `zapchast_${parePart.value}`;
-    if (this._appForm?.marka?.value) {url += `%2Fmarka_${this._appForm.marka.value}`;}
-    if (this._appForm?.model?.value) {url += `%2Fmodel_${this._appForm.model.value}`;}
+    if (this._appForm?.marka?.value) {
+      url += `%2Fmarka_${this._appForm.marka.value}`;
+    }
+    if (this._appForm?.model?.value) {
+      url += `%2Fmodel_${this._appForm.model.value}`;
+    }
     url += `%2Fgod_${this._appForm?.yearFrom?.value}-${this._appForm?.yearTo?.value}`;
-    if (this._appForm?.fuel?.value) {url += `%2Ftoplivo_${this._appForm.fuel.value}`;}
-    if (this._appForm?.gear?.value) {url += `%2Fkorobka_${this._appForm.gear.value}`;}
-    if (this._appForm?.body?.value) {url += `%2Fkuzov_${this._appForm.body.value}`;}
+    if (this._appForm?.fuel?.value) {
+      url += `%2Ftoplivo_${this._appForm.fuel.value}`;
+    }
+    if (this._appForm?.gear?.value) {
+      url += `%2Fkorobka_${this._appForm.gear.value}`;
+    }
+    if (this._appForm?.body?.value) {
+      url += `%2Fkuzov_${this._appForm.body.value}`;
+    }
     // if (this._selectedEngine?.value) {url += `%2Fenginevalue${this._selectedEngine.value}/`;}
     url += `%2Fphoto_Y%2Fstore_Y&more=Y&PAGEN_1=${page}`;
     return url;
@@ -193,44 +214,46 @@ export class AppComponent {
       },
     ];
 
-    // worksheet.getCell(1,1).style.fill = {
+    // worksheet.getCell(1, 1).style.fill = {
     //   type: 'pattern',
     //   pattern: 'solid',
     //   bgColor: {
     //     argb: 'FF00FF00',
+    //     theme: 2
     //   }
     // }
 
-    worksheet.addRow(["","", "б/у", "новая", "б/у", "новая", "б/у", "новая"]);
+    worksheet.addRow(["", "", "б/у", "новая", "б/у", "новая", "б/у", "новая"]);
     worksheet.mergeCells("C1:D1");
     worksheet.mergeCells("E1:F1");
     worksheet.mergeCells("G1:H1");
     worksheet.mergeCells("A1:A2");
     worksheet.mergeCells("B1:B2");
 
-    this._tableData?.forEach((row: TableRow, index: number) => {
-      if (
+    this._tableData
+      ?.filter((row) => (
         (row.newMaxPrice !== 0 && row.newMaxPriceAsString !== "Не найдено") ||
         (row.secondHandMaxPrice !== 0 && row.secondHandMaxPriceAsString !== "Не найдено") ||
         (row.newAveragePrice !== 0 && row.newAveragePriceAsString !== "Не найдено") ||
         (row.secondHandAveragePrice !== 0 && row.secondHandAveragePriceAsString !== "Не найдено") ||
         (row.newMinPrice !== 0 && row.newMinPriceAsString !== "Не найдено") ||
         (row.secondHandMinPrice !== 0 && row.newMinPriceAsString !== "Не найдено")
-      )
-      worksheet.addRow([
-        index,
-        row.name,
-        row.secondHandMinPrice || 0,
-        row.newMinPrice || 0,
-        row.secondHandAveragePrice || 0,
-        row.newAveragePrice || 0,
-        row.secondHandMaxPrice || 0,
-        row.newMaxPrice || 0,
-      ])
-    })
+      ))
+      ?.forEach((row: TableRow, index: number) => {
+        worksheet.addRow([
+          index,
+          row.name,
+          row.secondHandMinPrice || 0,
+          row.newMinPrice || 0,
+          row.secondHandAveragePrice || 0,
+          row.newAveragePrice || 0,
+          row.secondHandMaxPrice || 0,
+          row.newMaxPrice || 0,
+        ])
+      })
 
     workBook.xlsx.writeBuffer().then((data) => {
-      let blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      let blob = new Blob([data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
       fs.saveAs(blob, 'Запчасти.xlsx');
     });
 
@@ -295,10 +318,10 @@ export class AppComponent {
           : parePartModel.secondHandAveragePrice + elementValues.parePartPrice;
       });
 
-      const secondHandAveragePrice: number = (parePartModel?.secondHandAveragePrice || 0) / secondHandElements?.length;
-      const newAveragePrice: number = (parePartModel.newAveragePrice || 0) / nemElements?.length;
+      const secondHandAveragePrice: number = Number(((parePartModel?.secondHandAveragePrice || 0) / secondHandElements?.length).toFixed(2));
+      const newAveragePrice: number = Number(((parePartModel.newAveragePrice || 0) / nemElements?.length).toFixed(2));
 
-      this._tableData = [ ...this._tableData, {
+      this._tableData = [...this._tableData, {
         ...parePartModel,
         position: this._tableData.length + 1,
         newMinPriceAsString: this.priceToString(parePartModel.newMinPrice || 0),
@@ -307,7 +330,7 @@ export class AppComponent {
         secondHandAveragePriceAsString: this.priceToString(secondHandAveragePrice),
         secondHandAveragePriceImages: this.getAveragePriceImages(secondHandElements, secondHandAveragePrice),
         newAveragePrice,
-        newAveragePriceAsString: this.priceToString(parePartModel.newAveragePrice || 0),
+        newAveragePriceAsString: this.priceToString(newAveragePrice),
         newAveragePriceImages: this.getAveragePriceImages(nemElements, newAveragePrice),
         secondHandMaxPriceAsString: this.priceToString(parePartModel.secondHandMaxPrice || 0),
         newMaxPriceAsString: this.priceToString(parePartModel.newMaxPrice || 0)
@@ -341,7 +364,9 @@ export class AppComponent {
 
   private getElementImages(element: Element): HTMLImageElement[] {
     const images: HTMLImageElement[] = Array.from(element?.getElementsByClassName("thumbnail no-margin")) as HTMLImageElement[] || [];
-    images?.forEach((img: HTMLImageElement) => { img.src = img.src.replace(window?.location?.href, AppComponent.defaultURL) });
+    images?.forEach((img: HTMLImageElement) => {
+      img.src = img.src.replace(window?.location?.href, AppComponent.defaultURL)
+    });
     return images;
   }
 
