@@ -114,41 +114,101 @@ export class AppComponent {
         header: 'No.',
         key: 'No',
         width: 10,
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
+        }
       },
       {
         header: 'Запчасть',
         key: 'parePart',
         width: 32,
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
+        }
       },
       {
         header: 'Минимальная цена, $',
         key: 'minPrice',
         width: 15,
-        alignment: {
-          horizontal: 'center'
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
         }
       },
-      {},
+      {
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
+        }
+      },
       {
         header: 'Средняя цена, $',
         key: 'averagePrice',
         width: 15,
-        alignment: {
-          horizontal: 'center'
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
         }
       },
-      {},
+      {
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
+        }
+      },
       {
         header: 'Максимальная цена, $',
         key: 'maxPrice',
         width: 15,
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
+        }
+      },
+      {
+        style: {
+          alignment: {
+            horizontal: "center",
+          },
+        }
+      },
+      {},
+      {},
+      {
+        header: this._tableName,
+        key: 'carParams',
+        width: 50,
         alignment: {
           horizontal: 'center'
-        }
-      }];
+        },
+      },
+    ];
 
+    // worksheet.getCell(1,1).style.fill = {
+    //   type: 'pattern',
+    //   pattern: 'solid',
+    //   bgColor: {
+    //     argb: 'FF00FF00',
+    //   }
+    // }
 
-    this._tableData?.forEach((row: TableRow) => {
+    worksheet.addRow(["","", "б/у", "новая", "б/у", "новая", "б/у", "новая"]);
+    worksheet.mergeCells("C1:D1");
+    worksheet.mergeCells("E1:F1");
+    worksheet.mergeCells("G1:H1");
+    worksheet.mergeCells("A1:A2");
+    worksheet.mergeCells("B1:B2");
+
+    this._tableData?.forEach((row: TableRow, index: number) => {
       if (
         (row.newMaxPrice !== 0 && row.newMaxPriceAsString !== "Не найдено") ||
         (row.secondHandMaxPrice !== 0 && row.secondHandMaxPriceAsString !== "Не найдено") ||
@@ -158,7 +218,7 @@ export class AppComponent {
         (row.secondHandMinPrice !== 0 && row.newMinPriceAsString !== "Не найдено")
       )
       worksheet.addRow([
-        row.position,
+        index,
         row.name,
         row.secondHandMinPrice || 0,
         row.newMinPrice || 0,
