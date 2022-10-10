@@ -1,6 +1,29 @@
 # AutoPareParts
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.2.
+Project uses Angular Material components for display view.
+
+Application based on famous site with auto pare parts [bamper.by](bamper.by).
+App calculates min, max and average prices for selected second hand and new pare parts(if current part exists).
+User can choose additional param for filtration.
+After prices calculation user can see prices and pare part images for current position.
+And it's possible to download calculated table to excel file.
+
+Default view
+![layout](./src/assets/images/default-page.png)
+
+Result table
+![layout](./src/assets/images/table-with-results.png)
+
+Image viewer
+![layout](./src/assets/images/image-viewer.png)
+
+Downloaded excel file
+![layout](./src/assets/images/downloaded-excel-file.png)
+
+Note
+For correct work please use Allow CORS extension
+![layout](./src/assets/images/cors-extension.png)
 
 ## Development server
 
